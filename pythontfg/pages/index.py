@@ -54,7 +54,7 @@ def index() -> rx.Component:
 
     """
     return rx.vstack(
-        rx.heading(f"Welcome, {ProfileState.profile.name}", size="5"),
+        rx.heading(f"Hola, {ProfileState.profile.name}", size="5"),
         rx.flex(
             rx.input(
                 rx.input.slot(rx.icon("search"), padding_left="0"),

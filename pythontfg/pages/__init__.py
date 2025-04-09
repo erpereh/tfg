@@ -4,4 +4,4 @@ from .profile import profile
 from .settings import settings
 from .table import table
 
-__all__ = ["about", "index", "chatbot", "profile", "settings", "table"]
+__all__ = ["about", "index", "profile", "settings", "table"]

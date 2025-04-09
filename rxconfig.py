@@ -1,5 +1,5 @@
 import reflex as rx
 
 config = rx.Config(
-    app_name="webtfg",
+    app_name="pythontfg",
 )

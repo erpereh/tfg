@@ -2,7 +2,7 @@
 
 import reflex as rx
 
-from webtfg import styles
+from pythontfg import styles
 
 
 def menu_item_icon(icon: str) -> rx.Component:
@@ -31,7 +31,6 @@ def menu_item(text: str, url: str) -> rx.Component:
                 text,
                 ("Overview", menu_item_icon("home")),
                 ("Table", menu_item_icon("table-2")),
-                ("Chatbot", menu_item_icon("home")),
                 ("About", menu_item_icon("book-open")),
                 ("Profile", menu_item_icon("user")),
                 ("Settings", menu_item_icon("settings")),
@@ -111,7 +110,6 @@ def menu_button() -> rx.Component:
     # The ordered page routes.
     ordered_page_routes = [
         "/",
-        "/chatbot",
         "/table",
         "/about",
         "/profile",

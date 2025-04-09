@@ -1,6 +1,6 @@
 import reflex as rx
 
-from webtfg import styles
+from pythontfg import styles
 
 
 def card(*children, **props):

@@ -81,7 +81,6 @@ def sidebar_item(text: str, url: str) -> rx.Component:
                 text,
                 ("Overview", sidebar_item_icon("home")),
                 ("Table", sidebar_item_icon("table-2")),
-                ("Chatbot", sidebar_item_icon("bot")),
                 ("About", sidebar_item_icon("book-open")),
                 ("Profile", sidebar_item_icon("user")),
                 ("Settings", sidebar_item_icon("settings")),
@@ -139,7 +138,6 @@ def sidebar() -> rx.Component:
     ordered_page_routes = [
         "/",
         "/table",
-        "/chatbot",
         "/about",
         "/profile",
         "/settings",
