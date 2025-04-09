@@ -40,12 +40,6 @@ def sidebar_footer() -> rx.Component:
             color_scheme="gray",
             underline="none",
         ),
-        rx.link(
-            rx.text("Blog", size="3"),
-            href="https://reflex.dev/blog/",
-            color_scheme="gray",
-            underline="none",
-        ),
         rx.spacer(),
         rx.color_mode.button(style={"opacity": "0.8", "scale": "0.95"}),
         justify="start",
@@ -136,7 +130,7 @@ def sidebar() -> rx.Component:
 
     # The ordered page routes.
     ordered_page_routes = [
-        "/",
+        "/overview",
         "/table",
         "/about",
         "/profile",
@@ -166,6 +160,7 @@ def sidebar() -> rx.Component:
                         url=page["route"],
                     )
                     for page in ordered_pages
+                    if page["route"] != "/"  # filtramos la ruta principal, que es el login para que no aparezca en el menu
                 ],
                 spacing="1",
                 width="100%",

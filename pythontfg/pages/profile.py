@@ -36,7 +36,7 @@ def profile() -> rx.Component:
             rx.vstack(
                 rx.hstack(
                     rx.icon("square-user-round"),
-                    rx.heading("Personal information", size="5"),
+                    rx.heading("Personal utcyuhv information", size="5"),
                     align="center",
                 ),
                 rx.text("Update your personal information.", size="3"),
