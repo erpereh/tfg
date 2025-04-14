@@ -1,5 +1,7 @@
-
+#login.py
 import reflex as rx
+
+from pythontfg.backend.database_conect import Usuario
 
 @rx.page(route="/", title="Login")
 def login_page() -> rx.Component:
@@ -45,7 +47,7 @@ def login_default_icons() -> rx.Component:
                     type="email",
                     size="3",
                     width="100%",
-                    on_change=LoginState.set_email,
+                    on_change=Usuario.on_email_change
                 ),
                 spacing="2",
                 width="100%",
@@ -71,7 +73,7 @@ def login_default_icons() -> rx.Component:
                     type="password",
                     size="3",
                     width="100%",
-                    on_change=LoginState.set_password,
+                    on_change=Usuario.on_pass_change
                 ),
                 spacing="2",
                 width="100%",
@@ -80,11 +82,11 @@ def login_default_icons() -> rx.Component:
                 "Sign in",
                 size="3",
                 width="100%",
-                on_click=LoginState.validar_usr_pass,
+                on_click=Usuario.validar_login,
             ),
             rx.cond(
-                LoginState.intentado_login & (LoginState.error != ""),
-                rx.text(LoginState.error, color="red", size="2"),
+                Usuario.error != "",
+                rx.text(Usuario.error, color="red", size="2"),
             ),
             rx.center(
                 rx.text("No tienes cuenta?", size="3"),
@@ -102,30 +104,3 @@ def login_default_icons() -> rx.Component:
         width="100%",
     )
     
-    
-import re    
-class LoginState(rx.State):
-    email: str = ""
-    password: str = ""
-    error: str = ""
-    intentado_login: bool = False  # nueva bandera
-
-    def validar_usr_pass(self):
-        self.intentado_login = True
-        print(f"Email: {self.email}, Contraseña: {self.password}")
-
-        if not self.email:
-            self.error = "El correo no puede estar vacío."
-            return
-
-        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        if not re.match(pattern, self.email):
-            self.error = "El formato del correo no es válido."
-            return
-
-        if len(self.password) < 6:
-            self.error = "La contraseña debe tener al menos 6 caracteres."
-            return
-
-        self.error = ""  # limpia el error si todo está bien
-        return rx.redirect("/overview")
