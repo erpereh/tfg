@@ -160,7 +160,7 @@ def sidebar() -> rx.Component:
                         url=page["route"],
                     )
                     for page in ordered_pages
-                    if page["route"] != "/"  # filtramos la ruta principal, que es el login para que no aparezca en el menu
+                    if page["route"] not in ["/", "/registrarse"]  # filtramos la ruta principal, que es el login para que no aparezca en el menu y el de registro
                 ],
                 spacing="1",
                 width="100%",

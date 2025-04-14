@@ -1,16 +1,16 @@
 
 import reflex as rx
 
-@rx.page(route="/", title="Login")
-def login_page() -> rx.Component:
+@rx.page(route="/registrarse", title="Registrarse")
+def registrarse() -> rx.Component:
     return rx.center(
-        login_default_icons(),
+        registrarse_default_icons(),
         height="100vh",
         padding="2em",
     )
 
 
-def login_default_icons() -> rx.Component:
+def registrarse_default_icons() -> rx.Component:
     return rx.card(
         rx.vstack(
             rx.center(
@@ -21,7 +21,7 @@ def login_default_icons() -> rx.Component:
                     border_radius="25%",
                 ),
                 rx.heading(
-                    "Accede con tu cuenta",
+                    "Registrarse",
                     size="6",
                     as_="h2",
                     text_align="center",
@@ -33,6 +33,24 @@ def login_default_icons() -> rx.Component:
             ),
             rx.vstack(
                 rx.text(
+                    "Nombre",
+                    size="3",
+                    weight="medium",
+                    text_align="left",
+                    width="100%",
+                ),
+                rx.input(
+                    placeholder="Julio David",
+                    type="email",
+                    size="3",
+                    width="100%",
+                    on_change=RegistroState.set_nombre,
+                ),
+                spacing="2",
+                width="100%",
+            ),
+            rx.vstack(
+                rx.text(
                     "Email",
                     size="3",
                     weight="medium",
@@ -40,12 +58,11 @@ def login_default_icons() -> rx.Component:
                     width="100%",
                 ),
                 rx.input(
-                    rx.input.slot(rx.icon("user")),
                     placeholder="juliodavid@gmail.com",
                     type="email",
                     size="3",
                     width="100%",
-                    on_change=LoginState.set_email,
+                    on_change=RegistroState.set_email,
                 ),
                 spacing="2",
                 width="100%",
@@ -57,38 +74,32 @@ def login_default_icons() -> rx.Component:
                         size="3",
                         weight="medium",
                     ),
-                    rx.link(
-                        "Forgot password?",
-                        href="#",
-                        size="3",
-                    ),
                     justify="between",
                     width="100%",
                 ),
                 rx.input(
-                    rx.input.slot(rx.icon("lock")),
                     placeholder="Enter your password",
                     type="password",
                     size="3",
                     width="100%",
-                    on_change=LoginState.set_password,
+                    on_change=RegistroState.set_password,
                 ),
                 spacing="2",
                 width="100%",
             ),
             rx.button(
-                "Sign in",
+                "Sign Up",
                 size="3",
                 width="100%",
-                on_click=LoginState.validar_usr_pass,
+                on_click=RegistroState.validar_usr_pass,
             ),
             rx.cond(
-                LoginState.intentado_login & (LoginState.error != ""),
-                rx.text(LoginState.error, color="red", size="2"),
+                RegistroState.intentado_login & (RegistroState.error != ""),
+                rx.text(RegistroState.error, color="red", size="2"),
             ),
             rx.center(
-                rx.text("No tienes cuenta?", size="3"),
-                rx.link("Registrarse", href="/registrarse", size="3"),
+                rx.text("Ya tienes cuenta?", size="3"),
+                rx.link("Login", href="/", size="3"),
                 opacity="0.8",
                 spacing="2",
                 direction="row",
@@ -102,17 +113,18 @@ def login_default_icons() -> rx.Component:
         width="100%",
     )
     
-    
-import re    
-class LoginState(rx.State):
+import re
+class RegistroState(rx.State):
+    nombre: str = ""
     email: str = ""
     password: str = ""
-    error: str = ""
+    error: str = ""  # mensaje de error
     intentado_login: bool = False  # nueva bandera
 
     def validar_usr_pass(self):
         self.intentado_login = True
-        print(f"Email: {self.email}, Contraseña: {self.password}")
+        
+        print(f"Nombre: {self.nombre}, Email: {self.email}, Contraseña: {self.password}")
 
         if not self.email:
             self.error = "El correo no puede estar vacío."

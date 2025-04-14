@@ -144,7 +144,7 @@ def menu_button() -> rx.Component:
                             url=page["route"],
                         )
                         for page in ordered_pages
-                        if page["route"] != "/"  # filtramos la ruta principal, que es el login para que no aparezca en el menu
+                        if page["route"] not in ["/", "/registrarse"]  # filtramos la ruta principal, que es el login para que no aparezca en el menu y el de registro
                     ],
                     rx.spacer(),
                     navbar_footer(),
