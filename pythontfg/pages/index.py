@@ -4,6 +4,8 @@ import datetime
 
 import reflex as rx
 
+from pythontfg.backend.database_conect import Usuario
+
 from .. import styles
 from ..components.card import card
 from ..components.notification import notification
@@ -19,7 +21,6 @@ from ..views.charts import (
     users_chart,
 )
 from ..views.stats_cards import stats_cards
-from .profile import ProfileState
 
 
 def _time_data() -> rx.Component:
@@ -54,7 +55,7 @@ def index() -> rx.Component:
 
     """
     return rx.vstack(
-        rx.heading(f"Hola, {ProfileState.profile.name}", size="5"),
+        rx.heading(f"Hola, {Usuario.nombre}", size="5"),
         rx.flex(
             rx.input(
                 rx.input.slot(rx.icon("search"), padding_left="0"),

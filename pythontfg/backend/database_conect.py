@@ -20,7 +20,17 @@ class Usuario(rx.State):
     nombre: str = ""
     email: str = ""
     password: str = ""
-    error: str = ""  # mensaje de error
+    error: str = ""
+
+    instagram_usr: str = ""
+    instagram_pass: str = ""
+    facebook_usr: str = ""
+    facebook_pass: str = ""
+    telefono: int = 0
+    twitter_usr: str = ""
+    twitter_pass: str = ""
+    linkedin_usr: str = ""
+    linkedin_pass: str = ""
     
     
     def on_nombre_change(self, value: str):
@@ -63,25 +73,11 @@ class Usuario(rx.State):
             return
         self.error = ""  # limpia el error si está bien
         
-    def validar_login(self):
-        #comentar, solo para desarrollo
-        self.set_email("2@g.com")
-        self.set_password("123456")
-        
-        # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
-        res = supabase.table("borrame").select("*").eq("email", self.email).eq("pass", self.password).execute()
-
-        if res.data:
-            # Usuario encontrado, redirigimos
-            self.error = ""
-            return rx.redirect("/overview")
-        else:
-            # No coincide email/pass
-            self.error = "Correo o contraseña incorrectos."
+    
             
     def validar_registro(self):
         # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
-        res = supabase.table("borrame").select("*").eq("email", self.email).execute()
+        res = supabase.table("users").select("*").eq("email", self.email).execute()
 
         if res.data:
             # Usuario repetido, no se puede registrar
@@ -98,6 +94,62 @@ class Usuario(rx.State):
         if self.error != "":
             return
         
-        supabase.table("borrame").insert({"email": self.email, "pass": self.password}).execute()
+        supabase.table("users").insert({"email": self.email, "pass": self.password, "nombre": self.nombre}).execute()
         
         return rx.redirect("/overview")
+    
+    def validar_login(self):
+        
+        
+        #****************************************************************************************
+        #comentar, solo para desarrollo
+        self.set_email("1@gmail.com")
+        self.set_password("1")
+        #****************************************************************************************
+        
+        
+        
+        # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
+        res = supabase.table("users").select("*").eq("email", self.email).eq("pass", self.password).execute()
+
+        if res.data:
+            # Usuario encontrado, redirigimos
+            self.error = ""
+            self.cargar_datos_usr(res)
+            return rx.redirect("/overview")
+        else:
+            # No coincide email/pass
+            self.error = "Correo o contraseña incorrectos."
+            
+            
+    def cargar_datos_usr(self, res):
+        if not res.data:
+            self.error = "No se encontraron datos del usuario."
+            return
+
+        datos = res.data[0]
+
+        self.set_nombre(datos.get("nombre", ""))
+        self.set_email(datos.get("email", ""))
+        self.set_password(datos.get("pass", ""))
+
+        self.instagram_usr = datos.get("instagram_usr", "")
+        self.instagram_pass = datos.get("instagram_pass", "")
+        self.facebook_usr = datos.get("facebook_usr", "")
+        self.facebook_pass = datos.get("facebook_pass", "")
+        self.telefono = int(datos.get("telefono", 0) or 0)
+        self.twitter_usr = datos.get("twitter_usr", "")
+        self.twitter_pass = datos.get("twitter_pass", "")
+        self.linkedin_usr = datos.get("linkedin_usr", "")
+        self.linkedin_pass = datos.get("linkedin_pass", "")
+        
+        # Imprimir todos los valores para verificar
+        print("Usuario cargado:")
+        print(f"Nombre: {self.nombre}")
+        print(f"Email: {self.email}")
+        print(f"Password: {self.password}")
+        print(f"Instagram: {self.instagram_usr} / {self.instagram_pass}")
+        print(f"Facebook: {self.facebook_usr} / {self.facebook_pass}")
+        print(f"Teléfono: {self.telefono}")
+        print(f"Twitter: {self.twitter_usr} / {self.twitter_pass}")
+        print(f"LinkedIn: {self.linkedin_usr} / {self.linkedin_pass}")

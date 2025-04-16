@@ -1,100 +1,79 @@
 """The profile page."""
-
-import reflex as rx
-
+from ..backend.database_conect import Usuario
 from ..components.profile_input import profile_input
 from ..templates import template
-
-
-class Profile(rx.Base):
-    name: str = ""
-    email: str = ""
-    notifications: bool = True
-
-
-class ProfileState(rx.State):
-    profile: Profile = Profile(name="Admin", email="", notifications=True)
-
-    def handle_submit(self, form_data: dict):
-        self.profile = Profile(**form_data)
-        return rx.toast.success("Profile updated successfully", position="top-center")
-
-    def toggle_notifications(self):
-        self.profile.notifications = not self.profile.notifications
+import reflex as rx
 
 
 @template(route="/profile", title="Profile")
 def profile() -> rx.Component:
-    """The profile page.
-
-    Returns:
-        The UI for the profile page.
-
-    """
     return rx.vstack(
         rx.flex(
             rx.vstack(
                 rx.hstack(
                     rx.icon("square-user-round"),
-                    rx.heading("Personal utcyuhv information", size="5"),
+                    rx.heading("Información personal", size="5"),
                     align="center",
                 ),
-                rx.text("Update your personal information.", size="3"),
+                rx.text("Visualiza los datos vinculados a tu cuenta.", size="3"),
                 width="100%",
             ),
-            rx.form.root(
-                rx.vstack(
-                    profile_input(
-                        "Name",
-                        "name",
-                        "Admin",
-                        "text",
-                        "user",
-                        ProfileState.profile.name,
-                    ),
-                    profile_input(
-                        "Email",
-                        "email",
-                        "user@reflex.dev",
-                        "email",
-                        "mail",
-                        ProfileState.profile.email,
-                    ),
-                    rx.button("Update", type="submit", width="100%"),
-                    width="100%",
-                    spacing="5",
+            rx.vstack(
+                profile_input(
+                    "Nombre",
+                    "nombre",
+                    Usuario.nombre,
+                    "text",
+                    "user",
+                    Usuario.nombre,
                 ),
-                on_submit=ProfileState.handle_submit,
-                reset_on_submit=True,
+                profile_input(
+                    "Email",
+                    "email",
+                    Usuario.email,
+                    "email",
+                    "mail",
+                    Usuario.email,
+                ),
+                profile_input(
+                    "Teléfono",
+                    "telefono",
+                    str(Usuario.telefono),
+                    "tel",
+                    "phone",
+                    str(Usuario.telefono),
+                ),
+
+                # Redes sociales agrupadas: usr y pass en una fila
+                _social_group("Instagram", Usuario.instagram_usr, Usuario.instagram_pass, "instagram"),
+                _social_group("Facebook", Usuario.facebook_usr, Usuario.facebook_pass, "facebook"),
+                _social_group("Twitter", Usuario.twitter_usr, Usuario.twitter_pass, "twitter"),
+                _social_group("LinkedIn", Usuario.linkedin_usr, Usuario.linkedin_pass, "linkedin"),
+
                 width="100%",
-                max_width="325px",
+                spacing="4",
             ),
             width="100%",
             spacing="4",
             flex_direction=["column", "column", "row"],
         ),
         rx.divider(),
-        rx.flex(
-            rx.vstack(
-                rx.hstack(
-                    rx.icon("bell"),
-                    rx.heading("Notifications", size="5"),
-                    align="center",
-                ),
-                rx.text("Manage your notification settings.", size="3"),
-            ),
-            rx.checkbox(
-                "Receive product updates",
-                size="3",
-                checked=ProfileState.profile.notifications,
-                on_change=ProfileState.toggle_notifications(),
-            ),
-            width="100%",
-            spacing="4",
-            justify="between",
-            flex_direction=["column", "column", "row"],
-        ),
         spacing="6",
         width="100%",
         max_width="800px",
+    )
+
+
+def _social_group(nombre: str, usr: str, pwd: str, icono: str) -> rx.Component:
+    """Muestra usuario y contraseña de una red social en una misma fila."""
+    return rx.vstack(
+        rx.text(nombre, size="3", weight="medium"),
+        rx.hstack(
+            profile_input(f"{nombre} usuario", f"{icono}_usr", usr, "text", icono, usr),
+            profile_input(f"{nombre} contraseña", f"{icono}_pass", pwd, "text", "lock", pwd),
+            spacing="3",
+            width="100%",
+        ),
+        spacing="2",
+        width="100%",
     )
