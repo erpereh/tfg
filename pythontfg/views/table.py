@@ -103,6 +103,7 @@ def main_table() -> rx.Component:
     return rx.box(
         rx.flex(
             rx.flex(
+                # icono de orden, flecha hacia arriba o hacia abajo de la a-z o z-a
                 rx.cond(
                     TableState.sort_reverse,
                     rx.icon(
@@ -122,17 +123,22 @@ def main_table() -> rx.Component:
                         on_click=TableState.toggle_sort,
                     ),
                 ),
+                # combobox de ordenamiento, por nombre, pago, fecha o estado
                 rx.select(
                     [
-                        "name",
-                        "payment",
-                        "date",
-                        "status",
+                        "nombre",
+                        "email",
+                        "teléfono",
+                        "instagram",
+                        "facebook",
+                        "x-twitter",
+                        "linkedin",
                     ],
-                    placeholder="Sort By: Name",
+                    placeholder="Ordenar por:",
                     size="3",
                     on_change=TableState.set_sort_value,
                 ),
+                # label de búsqueda, se pone una cruz para borrar el texto
                 rx.input(
                     rx.input.slot(rx.icon("search")),
                     rx.input.slot(
@@ -143,7 +149,7 @@ def main_table() -> rx.Component:
                         display=rx.cond(TableState.search_value, "flex", "none"),
                     ),
                     value=TableState.search_value,
-                    placeholder="Search here...",
+                    placeholder="Buscar...",
                     size="3",
                     max_width=["150px", "150px", "200px", "250px"],
                     width="100%",
@@ -169,13 +175,18 @@ def main_table() -> rx.Component:
             width="100%",
             padding_bottom="1em",
         ),
+        # contenido de la tabla
         rx.table.root(
+            # cabezera de la tabla
             rx.table.header(
                 rx.table.row(
-                    _header_cell("Name", "user"),
-                    _header_cell("Payment", "dollar-sign"),
-                    _header_cell("Date", "calendar"),
-                    _header_cell("Status", "notebook-pen"),
+                    _header_cell("Nombre", "user"),
+                    _header_cell("Email", "mail"),
+                    _header_cell("Teléfono", "phone"),
+                    _header_cell("Instagram", "instagram"),
+                    _header_cell("Facebook", "facebook"),
+                    _header_cell("X - Twitter", "twitter"),
+                    _header_cell("Linkedin", "linkedin"),
                 ),
             ),
             rx.table.body(

@@ -7,7 +7,7 @@ from ..templates import template
 from ..views.table import main_table
 
 
-@template(route="/table", title="Table", on_load=TableState.load_entries)
+@template(route="/contactos", title="Contactos", on_load=TableState.load_entries)
 def table() -> rx.Component:
     """The table page.
 
@@ -16,7 +16,7 @@ def table() -> rx.Component:
 
     """
     return rx.vstack(
-        rx.heading("Table", size="5"),
+        rx.heading("Contactos", size="5"),
         main_table(),
         spacing="8",
         width="100%",

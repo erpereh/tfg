@@ -1,8 +1,7 @@
 from .about import about
 from .index import index
-from .login import login_page
+#from .login import login
 from .profile import profile
 from .settings import settings
-from .table import table
 
-__all__ = ["about", "index", "profile", "settings", "table", "login", "registrarse"]
+__all__ = ["about", "index", "profile", "settings", "contactos", "login", "registrarse"]

@@ -82,6 +82,7 @@ def login_default_icons() -> rx.Component:
                 "Sign in",
                 size="3",
                 width="100%",
+                # Comentar, solo para desarrollar
                 on_click=Usuario.validar_login,
             ),
             rx.cond(

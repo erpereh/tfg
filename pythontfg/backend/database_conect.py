@@ -64,6 +64,10 @@ class Usuario(rx.State):
         self.error = ""  # limpia el error si está bien
         
     def validar_login(self):
+        #comentar, solo para desarrollo
+        self.set_email("2@g.com")
+        self.set_password("123456")
+        
         # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
         res = supabase.table("borrame").select("*").eq("email", self.email).eq("pass", self.password).execute()
 
