@@ -8,6 +8,7 @@ def profile_input(
     type: str,
     icon: str,
     default_value: str = "",
+    on_change=None,  # nuevo parámetro
 ) -> rx.Component:
     return rx.vstack(
         rx.hstack(
@@ -21,8 +22,9 @@ def profile_input(
             placeholder=placeholder,
             type=type,
             default_value=default_value,
-            width="100%",
             name=name,
+            width="100%",
+            on_change=on_change,  # nuevo
         ),
         direction="column",
         spacing="1",

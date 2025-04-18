@@ -26,11 +26,40 @@ class Usuario(rx.State):
     instagram_pass: str = ""
     facebook_usr: str = ""
     facebook_pass: str = ""
-    telefono: int = 0
+    telefono: str = ""
     twitter_usr: str = ""
     twitter_pass: str = ""
     linkedin_usr: str = ""
     linkedin_pass: str = ""
+    
+    def on_instagram_usr_change(self, value: str):
+        self.instagram_usr = value
+
+    def on_instagram_pass_change(self, value: str):
+        self.instagram_pass = value
+
+    def on_facebook_usr_change(self, value: str):
+        self.facebook_usr = value
+
+    def on_facebook_pass_change(self, value: str):
+        self.facebook_pass = value
+
+    def on_telefono_change(self, value: str):
+        self.telefono = value
+        self.validar_telefono()
+
+    def on_twitter_usr_change(self, value: str):
+        self.twitter_usr = value
+
+    def on_twitter_pass_change(self, value: str):
+        self.twitter_pass = value
+
+    def on_linkedin_usr_change(self, value: str):
+        self.linkedin_usr = value
+
+    def on_linkedin_pass_change(self, value: str):
+        self.linkedin_pass = value
+
     
     
     def on_nombre_change(self, value: str):
@@ -60,6 +89,23 @@ class Usuario(rx.State):
     def on_email_change(self, value: str):
         self.set_email(value)
         self.validar_email()
+    
+    def no_se_puede_cambiar_email(self, value: str):
+        self.error = "No se puede cambiar el email."
+        return
+
+    def validar_telefono(self):
+        if not self.telefono:
+            self.error = "El teléfono no puede estar vacío."
+            return
+
+        # Solo 9 dígitos
+        pattern = r"^\d{9}$"
+        if not re.match(pattern, self.telefono):
+            self.error = "El teléfono debe tener exactamente 9 dígitos numéricos."
+            return
+
+        self.error = ""  # limpia el error si está bien
 
     
     def validar_email(self):
@@ -137,7 +183,7 @@ class Usuario(rx.State):
         self.instagram_pass = datos.get("instagram_pass", "")
         self.facebook_usr = datos.get("facebook_usr", "")
         self.facebook_pass = datos.get("facebook_pass", "")
-        self.telefono = int(datos.get("telefono", 0) or 0)
+        self.telefono = datos.get("telefono", "0")
         self.twitter_usr = datos.get("twitter_usr", "")
         self.twitter_pass = datos.get("twitter_pass", "")
         self.linkedin_usr = datos.get("linkedin_usr", "")
@@ -153,3 +199,37 @@ class Usuario(rx.State):
         print(f"Teléfono: {self.telefono}")
         print(f"Twitter: {self.twitter_usr} / {self.twitter_pass}")
         print(f"LinkedIn: {self.linkedin_usr} / {self.linkedin_pass}")
+        
+        
+    def guardar_cambios(self, form_data: dict):
+        """Actualiza los datos del usuario en Supabase."""
+
+        # Actualiza el estado interno
+        self.nombre = form_data.get("nombre", self.nombre)
+        #self.email = form_data.get("email", self.email)
+        self.telefono = form_data.get("telefono", self.telefono)
+        self.instagram_usr = form_data.get("instagram_usr", self.instagram_usr)
+        self.instagram_pass = form_data.get("instagram_pass", self.instagram_pass)
+        self.facebook_usr = form_data.get("facebook_usr", self.facebook_usr)
+        self.facebook_pass = form_data.get("facebook_pass", self.facebook_pass)
+        self.twitter_usr = form_data.get("twitter_usr", self.twitter_usr)
+        self.twitter_pass = form_data.get("twitter_pass", self.twitter_pass)
+        self.linkedin_usr = form_data.get("linkedin_usr", self.linkedin_usr)
+        self.linkedin_pass = form_data.get("linkedin_pass", self.linkedin_pass)
+
+        # Actualiza en la base de datos (según email como identificador)
+        supabase.table("users").update({
+            "nombre": self.nombre,
+            "telefono": self.telefono,
+            "instagram_usr": self.instagram_usr,
+            "instagram_pass": "otra vez",
+            "facebook_usr": self.facebook_usr,
+            "facebook_pass": self.facebook_pass,
+            "twitter_usr": self.twitter_usr,
+            "twitter_pass": self.twitter_pass,
+            "linkedin_usr": self.linkedin_usr,
+            "linkedin_pass": self.linkedin_pass,
+        }).eq("email", self.email).execute()
+
+        return rx.toast.success("Cambios guardados correctamente", position="top-center")
+
