@@ -23,6 +23,8 @@ def table() -> rx.Component:
         width="100%",
     )
 
+
+
 """ ESTA SI QUE FUNCIONA YA QUE NO CUENTA CON LAS CLASES TABLE, TABLESTATE ....
 
 

@@ -9,6 +9,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 import reflex as rx
 import re
 from typing import List
+import csv
+from pathlib import Path
 
 class Contacto(rx.Base):
     nombre: str = ""
@@ -304,7 +306,7 @@ class Usuario(rx.State):
                 for item in items
                 if any(
                     search_value in str(getattr(item, attr)).lower()
-                    for attr in ["name", "email", "telefono", "instagram", "facebook", "twitter", "linkedin"]
+                    for attr in ["nombre", "email", "telefono", "instagram", "facebook", "twitter", "linkedin"]
                 )
             ]
 
@@ -343,12 +345,35 @@ class Usuario(rx.State):
 
 
     def load_entries(self):
-        print("no funciona")
-
-
-
-
+        self.cargar_contactos()
 
     def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
         self.load_entries()
+        
+
+    def export_to_csv(self):
+        """Genera un CSV con los contactos y lo pone disponible para descargar."""
+        file_path = Path("assets/items.csv")
+
+        # Crear carpeta 'assets' si no existe
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with file_path.open(mode="w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            # Cabecera
+            writer.writerow(["Nombre", "Email", "Teléfono", "Instagram", "Facebook", "Twitter", "LinkedIn"])
+            # Filas de contactos
+            for contacto in self.contactos:
+                writer.writerow([
+                    contacto.nombre,
+                    contacto.email,
+                    contacto.telefono,
+                    contacto.instagram,
+                    contacto.facebook,
+                    contacto.twitter,
+                    contacto.linkedin,
+                ])
+
+        return rx.download(url="/items.csv")
+
