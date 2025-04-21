@@ -1,8 +1,8 @@
+#table.py
+
 import reflex as rx
 
-from ..backend.table_state import Item, TableState
-from ..components.status_badge import status_badge
-
+from pythontfg.backend.database_conect import Contacto, Usuario
 
 def _header_cell(text: str, icon: str) -> rx.Component:
     return rx.table.column_header_cell(
@@ -15,7 +15,7 @@ def _header_cell(text: str, icon: str) -> rx.Component:
     )
 
 
-def _show_item(item: Item, index: int) -> rx.Component:
+def _show_item(item: Contacto, index: int) -> rx.Component:
     bg_color = rx.cond(
         index % 2 == 0,
         rx.color("gray", 1),
@@ -27,13 +27,17 @@ def _show_item(item: Item, index: int) -> rx.Component:
         rx.color("accent", 3),
     )
     return rx.table.row(
-        rx.table.row_header_cell(item.name),
-        rx.table.cell(f"${item.payment}"),
-        rx.table.cell(item.date),
-        rx.table.cell(status_badge(item.status)),
+        rx.table.row_header_cell(item.nombre),
+        rx.table.cell(item.email),
+        rx.table.cell(item.telefono),
+        rx.table.cell(item.instagram),
+        rx.table.cell(item.facebook),
+        rx.table.cell(item.twitter),
+        rx.table.cell(item.linkedin),
         style={"_hover": {"bg": hover_color}, "bg": bg_color},
         align="center",
     )
+
 
 
 def _pagination_view() -> rx.Component:
@@ -41,33 +45,33 @@ def _pagination_view() -> rx.Component:
         rx.hstack(
             rx.text(
                 "Page ",
-                rx.code(TableState.page_number),
-                f" of {TableState.total_pages}",
+                rx.code(Usuario.page_number),
+                f" of {Usuario.total_pages}",
                 justify="end",
             ),
             rx.hstack(
                 rx.icon_button(
                     rx.icon("chevrons-left", size=18),
-                    on_click=TableState.first_page,
-                    opacity=rx.cond(TableState.page_number == 1, 0.6, 1),
-                    color_scheme=rx.cond(TableState.page_number == 1, "gray", "accent"),
+                    on_click=Usuario.first_page,
+                    opacity=rx.cond(Usuario.page_number == 1, 0.6, 1),
+                    color_scheme=rx.cond(Usuario.page_number == 1, "gray", "accent"),
                     variant="soft",
                 ),
                 rx.icon_button(
                     rx.icon("chevron-left", size=18),
-                    on_click=TableState.prev_page,
-                    opacity=rx.cond(TableState.page_number == 1, 0.6, 1),
-                    color_scheme=rx.cond(TableState.page_number == 1, "gray", "accent"),
+                    on_click=Usuario.prev_page,
+                    opacity=rx.cond(Usuario.page_number == 1, 0.6, 1),
+                    color_scheme=rx.cond(Usuario.page_number == 1, "gray", "accent"),
                     variant="soft",
                 ),
                 rx.icon_button(
                     rx.icon("chevron-right", size=18),
-                    on_click=TableState.next_page,
+                    on_click=Usuario.next_page,
                     opacity=rx.cond(
-                        TableState.page_number == TableState.total_pages, 0.6, 1
+                        Usuario.page_number == Usuario.total_pages, 0.6, 1
                     ),
                     color_scheme=rx.cond(
-                        TableState.page_number == TableState.total_pages,
+                        Usuario.page_number == Usuario.total_pages,
                         "gray",
                         "accent",
                     ),
@@ -75,12 +79,12 @@ def _pagination_view() -> rx.Component:
                 ),
                 rx.icon_button(
                     rx.icon("chevrons-right", size=18),
-                    on_click=TableState.last_page,
+                    on_click=Usuario.last_page,
                     opacity=rx.cond(
-                        TableState.page_number == TableState.total_pages, 0.6, 1
+                        Usuario.page_number == Usuario.total_pages, 0.6, 1
                     ),
                     color_scheme=rx.cond(
-                        TableState.page_number == TableState.total_pages,
+                        Usuario.page_number == Usuario.total_pages,
                         "gray",
                         "accent",
                     ),
@@ -105,14 +109,14 @@ def main_table() -> rx.Component:
             rx.flex(
                 # icono de orden, flecha hacia arriba o hacia abajo de la a-z o z-a
                 rx.cond(
-                    TableState.sort_reverse,
+                    Usuario.sort_reverse,
                     rx.icon(
                         "arrow-down-z-a",
                         size=28,
                         stroke_width=1.5,
                         cursor="pointer",
                         flex_shrink="0",
-                        on_click=TableState.toggle_sort,
+                        on_click=Usuario.toggle_sort,
                     ),
                     rx.icon(
                         "arrow-down-a-z",
@@ -120,7 +124,7 @@ def main_table() -> rx.Component:
                         stroke_width=1.5,
                         cursor="pointer",
                         flex_shrink="0",
-                        on_click=TableState.toggle_sort,
+                        on_click=Usuario.toggle_sort,
                     ),
                 ),
                 # combobox de ordenamiento, por nombre, pago, fecha o estado
@@ -136,7 +140,7 @@ def main_table() -> rx.Component:
                     ],
                     placeholder="Ordenar por:",
                     size="3",
-                    on_change=TableState.set_sort_value,
+                    on_change=Usuario.set_sort_value,
                 ),
                 # label de búsqueda, se pone una cruz para borrar el texto
                 rx.input(
@@ -145,17 +149,17 @@ def main_table() -> rx.Component:
                         rx.icon("x"),
                         justify="end",
                         cursor="pointer",
-                        on_click=TableState.setvar("search_value", ""),
-                        display=rx.cond(TableState.search_value, "flex", "none"),
+                        on_click=Usuario.setvar("search_value", ""),
+                        display=rx.cond(Usuario.search_value, "flex", "none"),
                     ),
-                    value=TableState.search_value,
+                    value=Usuario.search_value,
                     placeholder="Buscar...",
                     size="3",
                     max_width=["150px", "150px", "200px", "250px"],
                     width="100%",
                     variant="surface",
                     color_scheme="gray",
-                    on_change=TableState.set_search_value,
+                    on_change=Usuario.set_search_value,
                 ),
                 align="center",
                 justify="end",
@@ -180,7 +184,7 @@ def main_table() -> rx.Component:
             # cabezera de la tabla
             rx.table.header(
                 rx.table.row(
-                    _header_cell("Nombre", "user"),
+                    _header_cell(f"Nombre: {Usuario.email}", "user"),
                     _header_cell("Email", "mail"),
                     _header_cell("Teléfono", "phone"),
                     _header_cell("Instagram", "instagram"),
@@ -191,7 +195,7 @@ def main_table() -> rx.Component:
             ),
             rx.table.body(
                 rx.foreach(
-                    TableState.get_current_page,
+                    Usuario.get_current_page,
                     lambda item, index: _show_item(item, index),
                 )
             ),

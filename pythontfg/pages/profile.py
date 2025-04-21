@@ -22,6 +22,7 @@ def profile() -> rx.Component:
                 rx.vstack(
                     profile_input("Nombre", "nombre", Usuario.nombre, "text", "user", Usuario.nombre, Usuario.on_nombre_change),
                     profile_input("Email", "email", Usuario.email, "email", "mail", Usuario.email, Usuario.no_se_puede_cambiar_email),
+                    profile_input("Contraseña", "pass", Usuario.password, "pass", "lock", Usuario.password, Usuario.on_pass_change),
                     profile_input("Teléfono", "telefono", Usuario.telefono, "tel", "phone", Usuario.telefono, Usuario.on_telefono_change),
 
                     rx.button(

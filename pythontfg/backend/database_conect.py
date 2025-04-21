@@ -1,26 +1,33 @@
 from supabase import create_client, Client
 
+
 SUPABASE_URL = "https://kpwbkzdjqgginzpfcpsd.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwd2JremRqcWdnaW56cGZjcHNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2NTYxMzUsImV4cCI6MjA2MDIzMjEzNX0.pBbx1E1vxNa1FunK0rXau--7SoA9934S7ISWixm-i2M"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-
-# Insertar un usuario
-#supabase.table("borrame").insert({"email": "prueba4@correo.com", "pass": "123456"}).execute()
-
-# Leer usuarios
-#res = supabase.table("borrame").select("*").execute()
-#print(res.data)
-
-
 import reflex as rx
 import re
+from typing import List
+
+class Contacto(rx.Base):
+    nombre: str = ""
+    email: str = ""
+    telefono: str = ""
+    instagram: str = ""
+    facebook: str = ""
+    twitter: str = ""
+    linkedin: str = ""
+
+
+
 class Usuario(rx.State):
     nombre: str = ""
     email: str = ""
     password: str = ""
     error: str = ""
+    
+    contactos: List[Contacto] = []
 
     instagram_usr: str = ""
     instagram_pass: str = ""
@@ -31,6 +38,15 @@ class Usuario(rx.State):
     twitter_pass: str = ""
     linkedin_usr: str = ""
     linkedin_pass: str = ""
+    
+    
+    search_value: str = ""
+    sort_value: str = ""
+    sort_reverse: bool = False
+
+    total_items: int = 0
+    offset: int = 0
+    limit: int = 12  # Number of rows per page
     
     def on_instagram_usr_change(self, value: str):
         self.instagram_usr = value
@@ -162,6 +178,7 @@ class Usuario(rx.State):
             # Usuario encontrado, redirigimos
             self.error = ""
             self.cargar_datos_usr(res)
+            self.cargar_contactos()
             return rx.redirect("/overview")
         else:
             # No coincide email/pass
@@ -206,7 +223,7 @@ class Usuario(rx.State):
 
         # Actualiza el estado interno
         self.nombre = form_data.get("nombre", self.nombre)
-        #self.email = form_data.get("email", self.email)
+        #self.email = form_data.get("email", self.email) el mail no porque sino podría cambiar contraseñas de otra gente
         self.telefono = form_data.get("telefono", self.telefono)
         self.instagram_usr = form_data.get("instagram_usr", self.instagram_usr)
         self.instagram_pass = form_data.get("instagram_pass", self.instagram_pass)
@@ -233,3 +250,105 @@ class Usuario(rx.State):
 
         return rx.toast.success("Cambios guardados correctamente", position="top-center")
 
+    def cargar_contactos(self):
+        """Carga los contactos del usuario desde Supabase."""
+        self.contactos = []  # Limpiar lista previa
+
+        res = supabase.table("contactos").select("*").eq("user_email", self.email).execute()
+
+        if not res.data:
+            print("No se encontraron contactos.")
+            return
+
+        for contacto_data in res.data:
+            contacto = Contacto(
+                nombre=contacto_data.get("nombre", ""),
+                email=contacto_data.get("email", ""),
+                telefono=contacto_data.get("telefono", ""),
+                instagram=contacto_data.get("instagram", ""),
+                facebook=contacto_data.get("facebook", ""),
+                twitter=contacto_data.get("twitter", ""),
+                linkedin=contacto_data.get("linkedin", "")
+            )
+            self.contactos.append(contacto)
+        
+        print(f"{len(self.contactos)} contacto(s) cargado(s) correctamente.")
+        print(self.contactos)
+    
+
+    
+    @rx.var(cache=True)
+    def filtered_sorted_items(self) -> List[Contacto]:
+        items = self.contactos
+
+        # Filter items based on selected item
+        if self.sort_value:
+            if self.sort_value in ["payment"]:
+                items = sorted(
+                    items,
+                    key=lambda item: float(getattr(item, self.sort_value)),
+                    reverse=self.sort_reverse,
+                )
+            else:
+                items = sorted(
+                    items,
+                    key=lambda item: str(getattr(item, self.sort_value)).lower(),
+                    reverse=self.sort_reverse,
+                )
+
+        # Filter items based on search value
+        if self.search_value:
+            search_value = self.search_value.lower()
+            items = [
+                item
+                for item in items
+                if any(
+                    search_value in str(getattr(item, attr)).lower()
+                    for attr in ["name", "email", "telefono", "instagram", "facebook", "twitter", "linkedin"]
+                )
+            ]
+
+        return items
+
+    @rx.var(cache=True)
+    def page_number(self) -> int:
+        return (self.offset // self.limit) + 1
+
+    @rx.var(cache=True)
+    def total_pages(self) -> int:
+        return (self.total_items // self.limit) + (
+            1 if self.total_items % self.limit else 1
+        )
+
+    @rx.var(cache=True, initial_value=[])
+    def get_current_page(self) -> list[Contacto]:
+        start_index = self.offset
+        end_index = start_index + self.limit
+        return self.filtered_sorted_items[start_index:end_index]
+
+    def prev_page(self):
+        if self.page_number > 1:
+            self.offset -= self.limit
+
+    def next_page(self):
+        if self.page_number < self.total_pages:
+            self.offset += self.limit
+
+    def first_page(self):
+        self.offset = 0
+
+    def last_page(self):
+        self.offset = (self.total_pages - 1) * self.limit
+
+
+
+    def load_entries(self):
+        print("no funciona")
+
+
+
+
+
+    def toggle_sort(self):
+        self.sort_reverse = not self.sort_reverse
+        self.load_entries()
