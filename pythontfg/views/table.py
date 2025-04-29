@@ -165,19 +165,29 @@ def main_table() -> rx.Component:
                 justify="end",
                 spacing="3",
             ),
-            rx.button(
-                rx.icon("arrow-down-to-line", size=20),
-                "Export",
-                size="3",
-                variant="surface",
-                display=["none", "none", "none", "flex"],
-                on_click=Usuario.export_to_csv,
+            rx.hstack(
+                rx.button(
+                    rx.icon("plus", size=20),
+                    "Añadir",
+                    size="3",
+                    variant="surface",
+                    display=["none", "none", "none", "flex"],
+                    on_click=Usuario.toggle_add_user_form,
+                ),
+                rx.button(
+                    rx.icon("arrow-down-to-line", size=20),
+                    "Export",
+                    size="3",
+                    variant="surface",
+                    display=["none", "none", "none", "flex"],
+                    on_click=Usuario.export_to_csv,
+                ),
+                spacing="3",
+                justify="end",
+                wrap="wrap",
+                width="100%",
+                padding_bottom="1em",
             ),
-            spacing="3",
-            justify="between",
-            wrap="wrap",
-            width="100%",
-            padding_bottom="1em",
         ),
         # contenido de la tabla
         rx.table.root(
@@ -204,5 +214,54 @@ def main_table() -> rx.Component:
             width="100%",
         ),
         _pagination_view(),
+        # Formulario debajo de la tabla
+        rx.cond(
+            Usuario.show_add_user_form,
+            rx.box(
+                rx.form(
+                    rx.input(
+                        placeholder="Nombre",
+                        #on_change=Usuario.set_new_user_field("nombre"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.input(
+                        placeholder="Email",
+                        #on_change=Usuario.set_new_user_field("email"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.input(
+                        placeholder="Teléfono",
+                        #on_change=Usuario.set_new_user_field("telefono"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.input(
+                        placeholder="Instagram",
+                        #on_change=Usuario.set_new_user_field("instagram"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.input(
+                        placeholder="Facebook",
+                        #on_change=Usuario.set_new_user_field("facebook"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.input(
+                        placeholder="Twitter",
+                        #on_change=Usuario.set_new_user_field("twitter"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.input(
+                        placeholder="Linkedin",
+                        #on_change=Usuario.set_new_user_field("linkedin"),
+                    ),
+                    rx.spacer(height="1em"),
+                    rx.button(
+                        "Guardar",
+                        on_click=Usuario.add_new_user,
+                    ),
+                    height="1em",
+                ),
+                style={"padding-top": "1em", "margin-top": "1em", "width": "100%"},
+            ),
+        ),
         width="100%",
     )

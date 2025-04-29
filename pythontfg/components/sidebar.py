@@ -66,7 +66,7 @@ def sidebar_item(text: str, url: str) -> rx.Component:
     """
     # Whether the item is active.
     active = (rx.State.router.page.path == url.lower()) | (
-        (rx.State.router.page.path == "/") & text == "Overview"
+        (rx.State.router.page.path == "/") & (text.lower() == "overview")
     )
 
     return rx.link(
@@ -74,7 +74,7 @@ def sidebar_item(text: str, url: str) -> rx.Component:
             rx.match(
                 text,
                 ("Overview", sidebar_item_icon("home")),
-                ("Table", sidebar_item_icon("table-2")),
+                ("Contactos", sidebar_item_icon("table-2")),
                 ("About", sidebar_item_icon("book-open")),
                 ("Profile", sidebar_item_icon("user")),
                 ("Settings", sidebar_item_icon("settings")),
@@ -131,7 +131,7 @@ def sidebar() -> rx.Component:
     # The ordered page routes.
     ordered_page_routes = [
         "/overview",
-        "/table",
+        "/contactos",
         "/about",
         "/profile",
         "/settings",

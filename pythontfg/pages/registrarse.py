@@ -100,7 +100,7 @@ def registrarse_default_icons() -> rx.Component:
                 rx.text(Usuario.error, color="red", size="2"),
             ),
             rx.center(
-                rx.text("Ya tienes cuenta?", size="3"),
+                rx.text("¿Ya tienes cuenta?", size="3"),
                 rx.link("Login", href="/", size="3"),
                 opacity="0.8",
                 spacing="2",

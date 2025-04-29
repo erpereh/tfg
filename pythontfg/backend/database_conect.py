@@ -41,6 +41,65 @@ class Usuario(rx.State):
     linkedin_usr: str = ""
     linkedin_pass: str = ""
     
+    show_add_user_form: bool = False
+
+    def toggle_add_user_form(self):
+        """Alterna la visibilidad del formulario para añadir un nuevo usuario."""
+        self.show_add_user_form = not self.show_add_user_form
+
+    def add_new_user(self):
+        """Add a new user to the database and update the table."""
+        # Validate the new user fields
+        if not self.nombre or not self.email:
+            self.error = "Nombre y Email son obligatorios."
+            print("Nombre y Email son obligatorios.")
+            return
+
+        try:
+            # Check if the contact already exists
+            existing_contact = supabase.table("contactos").select("nombre").eq("user_email", self.email).eq("nombre", self.nombre).execute()
+            if existing_contact.data and len(existing_contact.data) > 0:
+                self.error = "El contacto ya existe."
+                print("El contacto ya existe.")
+                return
+
+            # Create a new Contacto instance
+            new_contacto = Contacto(
+                nombre=self.nombre,
+                email=self.email,
+                telefono=self.telefono,
+                instagram=self.instagram_usr,
+                facebook=self.facebook_usr,
+                twitter=self.twitter_usr,
+                linkedin=self.linkedin_usr,
+            )
+
+            # Add the new Contacto to the database
+            supabase.table("contactos").insert({
+                "nombre": new_contacto.nombre,
+                "email": new_contacto.email,
+                "telefono": new_contacto.telefono,
+                "instagram": new_contacto.instagram,
+                "facebook": new_contacto.facebook,
+                "twitter": new_contacto.twitter,
+                "linkedin": new_contacto.linkedin,
+                "user_email": self.email,  # Associate with the current user
+            }).execute()
+
+            self.error = ""  # Clear any previous error
+
+            # Refresh the table data
+            self.cargar_contactos()
+
+            # Close the add user form
+            self.show_add_user_form = False
+
+            # Notify success
+            print("Usuario añadido correctamente.")
+        except Exception as e:
+            self.error = f"Error al añadir el usuario: {str(e)}"
+            print(f"Error al añadir el usuario: {str(e)}")
+            return
     
     search_value: str = ""
     sort_value: str = ""
@@ -354,7 +413,7 @@ class Usuario(rx.State):
 
     def export_to_csv(self):
         """Genera un CSV con los contactos y lo pone disponible para descargar."""
-        file_path = Path("assets/items.csv")
+        file_path = Path("assets/contactos.csv")
 
         # Crear carpeta 'assets' si no existe
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -375,5 +434,5 @@ class Usuario(rx.State):
                     contacto.linkedin,
                 ])
 
-        return rx.download(url="/items.csv")
+        return rx.download(url="/contactos.csv")
 

@@ -1,9 +1,10 @@
 #login.py
 import reflex as rx
 
+from ..templates import template
 from pythontfg.backend.database_conect import Usuario
 
-@rx.page(route="/", title="Login")
+@template(route="/", title="Login")
 def login_page() -> rx.Component:
     return rx.center(
         login_default_icons(),
