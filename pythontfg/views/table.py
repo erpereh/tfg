@@ -166,14 +166,67 @@ def main_table() -> rx.Component:
                 spacing="3",
             ),
             rx.hstack(
-                rx.button(
-                    rx.icon("plus", size=20),
-                    "Añadir",
-                    size="3",
-                    variant="surface",
-                    display=["none", "none", "none", "flex"],
-                    on_click=Usuario.toggle_add_user_form,
+                rx.dialog.root(
+                    rx.dialog.trigger(
+                        rx.button(
+                            rx.icon("plus", size=26),
+                            rx.text("Añadir", size="4"),
+                        ),
+                    ),
+                    rx.dialog.content(
+                        rx.dialog.title("Añadir nuevo usuario"),
+                        rx.dialog.description("Rellena los campos para añadir un nuevo usuario"),
+                        rx.form(
+                            rx.flex(
+                                rx.input(
+                                    placeholder="Nombre",
+                                    on_change=Usuario.on_nombre_change,
+                                    required=True,
+                                ),
+                                rx.input(
+                                    placeholder="Email",
+                                    on_change=Usuario.on_email_contacto_change,
+                                    required=True,
+                                ),
+                                rx.input(
+                                    placeholder="Teléfono",
+                                    on_change=Usuario.on_telefono_change,
+                                ),
+                                rx.input(
+                                    placeholder="Instagram",
+                                    on_change=Usuario.on_instagram_usr_change,
+                                ),
+                                rx.input(
+                                    placeholder="Facebook",
+                                    on_change=Usuario.on_facebook_usr_change,
+                                ),
+                                rx.input(
+                                    placeholder="Twitter",
+                                    on_change=Usuario.on_twitter_usr_change,
+                                ),
+                                rx.input(
+                                    placeholder="LinkedIn",
+                                    on_change=Usuario.on_linkedin_usr_change,
+                                ),
+                                rx.flex(
+                                    rx.dialog.close(
+                                        rx.button("Cancel", variant="soft", color_scheme="gray"),
+                                    ),
+                                    rx.dialog.close(
+                                        rx.button("Submit", type="submit", on_click=Usuario.add_new_user),
+                                    ),
+                                    spacing="3",
+                                    justify="end",
+                                ),
+                                direction="column",
+                                spacing="4",
+                            ),
+                            reset_on_submit=False,
+                        ),
+                        max_width="450px",
+                    ),
                 ),
+
                 rx.button(
                     rx.icon("arrow-down-to-line", size=20),
                     "Export",
@@ -214,54 +267,5 @@ def main_table() -> rx.Component:
             width="100%",
         ),
         _pagination_view(),
-        # Formulario debajo de la tabla
-        rx.cond(
-            Usuario.show_add_user_form,
-            rx.box(
-                rx.form(
-                    rx.input(
-                        placeholder="Nombre",
-                        #on_change=Usuario.set_new_user_field("nombre"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.input(
-                        placeholder="Email",
-                        #on_change=Usuario.set_new_user_field("email"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.input(
-                        placeholder="Teléfono",
-                        #on_change=Usuario.set_new_user_field("telefono"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.input(
-                        placeholder="Instagram",
-                        #on_change=Usuario.set_new_user_field("instagram"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.input(
-                        placeholder="Facebook",
-                        #on_change=Usuario.set_new_user_field("facebook"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.input(
-                        placeholder="Twitter",
-                        #on_change=Usuario.set_new_user_field("twitter"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.input(
-                        placeholder="Linkedin",
-                        #on_change=Usuario.set_new_user_field("linkedin"),
-                    ),
-                    rx.spacer(height="1em"),
-                    rx.button(
-                        "Guardar",
-                        on_click=Usuario.add_new_user,
-                    ),
-                    height="1em",
-                ),
-                style={"padding-top": "1em", "margin-top": "1em", "width": "100%"},
-            ),
-        ),
         width="100%",
     )
