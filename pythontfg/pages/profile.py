@@ -24,7 +24,7 @@ def profile() -> rx.Component:
                     profile_input("Email", "email", Usuario.email, "email", "mail", Usuario.email, Usuario.no_se_puede_cambiar_email),
                     profile_input("Contraseña", "pass", Usuario.password, "pass", "lock", Usuario.password, Usuario.on_pass_change),
                     profile_input("Teléfono", "telefono", Usuario.telefono, "tel", "phone", Usuario.telefono, Usuario.on_telefono_change),
-
+                    
                     rx.button(
                         rx.icon("save", size=20),
                         "Guardar cambios",
@@ -68,8 +68,8 @@ def _social_group(nombre: str, usr: str, pwd: str, icono: str) -> rx.Component:
     """Muestra usuario y contraseña de una red social en una misma fila."""
     return rx.vstack(
         rx.hstack(
-            profile_input(f"User {nombre}", f"{icono}_usr", usr, "text", icono, usr, getattr(Usuario, f"on_{icono}_usr_change")),
-            profile_input(f"Pass {nombre}", f"{icono}_pass", pwd, "text", "lock", pwd, getattr(Usuario, f"on_{icono}_pass_change")),
+            profile_input(f"User {nombre}", f"{icono}_usr", usr, "text", icono, usr, getattr(Usuario, f"set_{icono}_usr")),
+            profile_input(f"Pass {nombre}", f"{icono}_pass", pwd, "text", "lock", pwd, getattr(Usuario, f"set_{icono}_pass")),
             spacing="3",
             width="100%",
         ),

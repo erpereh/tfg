@@ -24,13 +24,16 @@ class Contacto(rx.Base):
 
 
 class Usuario(rx.State):
+    
+    
+    #****************************************************************************************
+    #******************* TODO ESTO ES PARA EL LOGIN, REGISTRO Y PROFILE *********************
+    #****************************************************************************************
     nombre: str = ""
     email: str = ""
     password: str = ""
     error: str = ""
     
-    contactos: List[Contacto] = []
-
     instagram_usr: str = ""
     instagram_pass: str = ""
     facebook_usr: str = ""
@@ -40,93 +43,11 @@ class Usuario(rx.State):
     twitter_pass: str = ""
     linkedin_usr: str = ""
     linkedin_pass: str = ""
-    
 
-    def add_new_user(self):
-        """Añade un nuevo contacto a la base de datos y actualiza la tabla."""
-        if not self.nombre or not self.telefono or not self.email:
-            self.error = "Nombre, Teléfono y Email del contacto son obligatorios."
-            print("Nombre, Teléfono y Email del contacto son obligatorios.")
-            return
-
-        try:
-            self.validar_telefono()
-            if self.error:
-                return
-
-            # Verificar si el contacto ya existe para ese usuario
-            existing_contact = supabase.table("contactos")\
-                .select("nombre")\
-                .eq("user_email", self.email)\
-                .eq("nombre", self.nombre)\
-                .execute()
-
-            if existing_contact.data and len(existing_contact.data) > 0:
-                self.error = "El contacto ya existe."
-                print("El contacto ya existe.")
-                return
-
-            # Insertar nuevo contacto asociado al usuario actual
-            supabase.table("contactos").insert({
-                "nombre": Contacto.nombre,
-                "email": Contacto.email,  # Email del contacto
-                "telefono": Contacto.telefono,
-                "instagram": Contacto.instagram,
-                "facebook": Contacto.facebook,
-                "twitter": Contacto.twitter,
-                "linkedin": Contacto.linkedin,
-                "user_email": self.email  # Email del usuario autenticado
-            }).execute()
-
-            self.error = ""
-            self.cargar_contactos()
-            print("Contacto añadido correctamente.")
-        except Exception as e:
-            self.error = f"Error al añadir el contacto: {str(e)}"
-            print(self.error)
-
-
-    
-    search_value: str = ""
-    sort_value: str = ""
-    sort_reverse: bool = False
-
-    total_items: int = 0
-    offset: int = 0
-    limit: int = 12  # Number of rows per page
-    
-    def on_email_contacto_change(self, value: str):
-        self.email = value
-    
-    def on_instagram_usr_change(self, value: str):
-        self.instagram_usr = value
-
-    def on_instagram_pass_change(self, value: str):
-        self.instagram_pass = value
-
-    def on_facebook_usr_change(self, value: str):
-        self.facebook_usr = value
-
-    def on_facebook_pass_change(self, value: str):
-        self.facebook_pass = value
 
     def on_telefono_change(self, value: str):
         self.telefono = value
         self.validar_telefono()
-
-    def on_twitter_usr_change(self, value: str):
-        self.twitter_usr = value
-
-    def on_twitter_pass_change(self, value: str):
-        self.twitter_pass = value
-
-    def on_linkedin_usr_change(self, value: str):
-        self.linkedin_usr = value
-
-    def on_linkedin_pass_change(self, value: str):
-        self.linkedin_pass = value
-
-    
     
     def on_nombre_change(self, value: str):
         self.set_nombre(value)
@@ -137,7 +58,7 @@ class Usuario(rx.State):
         self.validar_pass()
 
     def validar_pass(self):
-
+        
         if len(self.password) < 6:
             self.error = "La contraseña debe tener al menos 6 caracteres."
             return
@@ -211,15 +132,11 @@ class Usuario(rx.State):
         return rx.redirect("/overview")
     
     def validar_login(self):
-        
-        
-        #****************************************************************************************
+        #************************************
         #comentar, solo para desarrollo
         self.set_email("1@gmail.com")
         self.set_password("1")
-        #****************************************************************************************
-        
-        
+        #************************************
         
         # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
         res = supabase.table("users").select("*").eq("email", self.email).eq("pass", self.password).execute()
@@ -287,9 +204,10 @@ class Usuario(rx.State):
         # Actualiza en la base de datos (según email como identificador)
         supabase.table("users").update({
             "nombre": self.nombre,
+            "pass": self.password,
             "telefono": self.telefono,
             "instagram_usr": self.instagram_usr,
-            "instagram_pass": "otra vez",
+            "instagram_pass": self.instagram_pass,
             "facebook_usr": self.facebook_usr,
             "facebook_pass": self.facebook_pass,
             "twitter_usr": self.twitter_usr,
@@ -324,8 +242,95 @@ class Usuario(rx.State):
         
         print(f"{len(self.contactos)} contacto(s) cargado(s) correctamente.")
         print(self.contactos)
+        
+        
+        
+    
+    #****************************************************************************************
+    #******************* TODO ESTO ES PARA EL CREAR CONTACTOS *******************************
+    #****************************************************************************************
+        
+        
+    # Campos para añadir un nuevo contacto
+    nuevo_nombre: str = ""
+    nuevo_email: str = ""
+    nuevo_telefono: str = ""
+    nuevo_instagram: str = ""
+    nuevo_facebook: str = ""
+    nuevo_twitter: str = ""
+    nuevo_linkedin: str = ""
+    
+    contactos: List[Contacto] = []
+
+    def add_new_user(self):
+        
+        if not self.nuevo_nombre or not self.nuevo_telefono or not self.nuevo_email:
+            # Aqui deberíamos poner para que salga este mensaje de error en la interfaz de añadir contacto
+            #self.error = "Nombre, Teléfono y Email del contacto son obligatorios."
+            print("Nombre, Teléfono y Email del contacto son obligatorios.")
+            return
+        
+        nuevo = Contacto(
+            nombre=self.nuevo_nombre,
+            email=self.nuevo_email,
+            telefono=self.nuevo_telefono,
+            instagram=self.nuevo_instagram,
+            facebook=self.nuevo_facebook,
+            twitter=self.nuevo_twitter,
+            linkedin=self.nuevo_linkedin,
+        )
+        self.contactos.append(nuevo)
+        
+        
+        
+        existing_contact = supabase.table("contactos")\
+                .select("nombre")\
+                .eq("user_email", self.email)\
+                .eq("nombre", self.nuevo_nombre)\
+                .execute()
+
+        if existing_contact.data and len(existing_contact.data) > 0:
+            self.error = "El contacto ya existe."
+            print("El contacto ya existe.")
+            return
+
+        # Insertar nuevo contacto asociado al usuario actual
+        supabase.table("contactos").insert({
+            "nombre": self.nuevo_nombre,
+            "email": self.nuevo_email,  # Email del contacto
+            "telefono": self.nuevo_telefono,
+            "instagram": self.nuevo_instagram,
+            "facebook": self.nuevo_facebook,
+            "twitter": self.nuevo_twitter,
+            "linkedin": self.nuevo_linkedin,
+            "user_email": self.email  # Email del usuario autenticado
+        }).execute()
+        
+        # Resetea campos del formulario
+        self.nuevo_nombre = ""
+        self.nuevo_email = ""
+        self.nuevo_telefono = ""
+        self.nuevo_instagram = ""
+        self.nuevo_facebook = ""
+        self.nuevo_twitter = ""
+        self.nuevo_linkedin = ""
+        
+        self.load_entries()
+
     
 
+
+    #****************************************************************************************
+    #************************ TODO ESTO ES PARA LA TABLA DE CONTACTOS ***********************
+    #****************************************************************************************
+    
+    search_value: str = ""
+    sort_value: str = ""
+    sort_reverse: bool = False
+
+    total_items: int = 0
+    offset: int = 0
+    limit: int = 12  # Number of rows per page
     
     @rx.var(cache=True)
     def filtered_sorted_items(self) -> List[Contacto]:
@@ -389,8 +394,6 @@ class Usuario(rx.State):
 
     def last_page(self):
         self.offset = (self.total_pages - 1) * self.limit
-
-
 
     def load_entries(self):
         self.cargar_contactos()

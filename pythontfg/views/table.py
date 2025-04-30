@@ -180,53 +180,56 @@ def main_table() -> rx.Component:
                             rx.flex(
                                 rx.input(
                                     placeholder="Nombre",
-                                    on_change=Usuario.on_nombre_change,
+                                    value=Usuario.nuevo_nombre,
+                                    on_change=Usuario.set_nuevo_nombre,
                                     required=True,
                                 ),
                                 rx.input(
                                     placeholder="Email",
-                                    on_change=Usuario.on_email_contacto_change,
+                                    value=Usuario.nuevo_email,
+                                    on_change=Usuario.set_nuevo_email,
                                     required=True,
                                 ),
                                 rx.input(
                                     placeholder="Teléfono",
-                                    on_change=Usuario.on_telefono_change,
+                                    value=Usuario.nuevo_telefono,
+                                    on_change=Usuario.set_nuevo_telefono,
                                 ),
                                 rx.input(
                                     placeholder="Instagram",
-                                    on_change=Usuario.on_instagram_usr_change,
+                                    value=Usuario.nuevo_instagram,
+                                    on_change=Usuario.set_nuevo_instagram,
                                 ),
                                 rx.input(
                                     placeholder="Facebook",
-                                    on_change=Usuario.on_facebook_usr_change,
+                                    value=Usuario.nuevo_facebook,
+                                    on_change=Usuario.set_nuevo_facebook,
                                 ),
                                 rx.input(
                                     placeholder="Twitter",
-                                    on_change=Usuario.on_twitter_usr_change,
+                                    value=Usuario.nuevo_twitter,
+                                    on_change=Usuario.set_nuevo_twitter,
                                 ),
                                 rx.input(
                                     placeholder="LinkedIn",
-                                    on_change=Usuario.on_linkedin_usr_change,
+                                    value=Usuario.nuevo_linkedin,
+                                    on_change=Usuario.set_nuevo_linkedin,
                                 ),
                                 rx.flex(
-                                    rx.dialog.close(
-                                        rx.button("Cancel", variant="soft", color_scheme="gray"),
-                                    ),
-                                    rx.dialog.close(
-                                        rx.button("Submit", type="submit", on_click=Usuario.add_new_user),
-                                    ),
+                                    rx.dialog.close(rx.button("Cancelar", variant="soft", color_scheme="gray")),
+                                    rx.dialog.close(rx.button("Guardar", type="submit")),
                                     spacing="3",
                                     justify="end",
                                 ),
                                 direction="column",
                                 spacing="4",
                             ),
+                            on_submit=Usuario.add_new_user,
                             reset_on_submit=False,
                         ),
                         max_width="450px",
                     ),
                 ),
-
                 rx.button(
                     rx.icon("arrow-down-to-line", size=20),
                     "Export",
