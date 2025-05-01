@@ -317,7 +317,24 @@ class Usuario(rx.State):
         
         self.load_entries()
 
-    
+    # ESTO ES PARA ELIMINAR CONTACTOS
+    def eliminar_contacto(self, nombre_contacto: str):
+        """Elimina un contacto del usuario actual por nombre."""
+        if not nombre_contacto:
+            print("Debe proporcionar el nombre del contacto a eliminar.")
+            return
+
+        # Elimina en la base de datos
+        supabase.table("contactos")\
+            .delete()\
+            .eq("user_email", self.email)\
+            .eq("nombre", nombre_contacto)\
+            .execute()
+
+        # También lo elimina de la lista local
+        self.contactos = [c for c in self.contactos if c.nombre != nombre_contacto]
+        self.load_entries()
+        print(f"Contacto '{nombre_contacto}' eliminado correctamente.")
 
 
     #****************************************************************************************
