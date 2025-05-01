@@ -35,13 +35,22 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
         rx.table.cell(item.twitter),
         rx.table.cell(item.linkedin),
         rx.table.cell(
-            rx.icon_button(
-                rx.icon("trash"),
-                variant="ghost",
-                color_scheme="red",
-                on_click=lambda: Usuario.eliminar_contacto(item.nombre),
-                size="2",
-            ),
+            rx.hstack(
+                rx.icon_button(
+                    rx.icon("trash"),
+                    variant="ghost",
+                    color_scheme="red",
+                    #on_click=lambda: Usuario.modificar_contacto(item.nombre),
+                    size="2",
+                ),
+                rx.icon_button(
+                    rx.icon("trash"),
+                    variant="ghost",
+                    color_scheme="red",
+                    on_click=lambda: Usuario.eliminar_contacto(item.nombre),
+                    size="2",
+                ),
+            )
         ),
 
         style={"_hover": {"bg": hover_color}, "bg": bg_color},
