@@ -47,7 +47,8 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
                     rx.dialog.trigger(
                         rx.button(
                             rx.icon("pencil"),
-                        ),
+                            on_click=lambda: Usuario.preparar_formulario(item),
+                        )
                     ),
                     rx.dialog.content(
                         rx.dialog.title("Modificar usuario"),
@@ -250,6 +251,7 @@ def main_table() -> rx.Component:
                 justify="end",
                 spacing="3",
             ),
+            # botón de añadir nuevo usuario, que abre un modal con un formulario
             rx.hstack(
                 rx.dialog.root(
                     rx.dialog.trigger(
@@ -315,6 +317,7 @@ def main_table() -> rx.Component:
                         max_width="450px",
                     ),
                 ),
+                # botón de exportar a csv, que llama a la función export_to_csv
                 rx.button(
                     rx.icon("arrow-down-to-line", size=20),
                     "Export",

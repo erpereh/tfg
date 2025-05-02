@@ -358,6 +358,15 @@ class Usuario(rx.State):
         self.load_entries()
         print(f"Contacto '{nombre_contacto}' modificado correctamente.")
 
+    def preparar_formulario(self, contacto: Contacto):
+        self.nuevo_nombre = contacto.nombre
+        self.nuevo_email = contacto.email
+        self.nuevo_telefono = contacto.telefono or ""
+        self.nuevo_instagram = contacto.instagram or ""
+        self.nuevo_facebook = contacto.facebook or ""
+        self.nuevo_twitter = contacto.twitter or ""
+        self.nuevo_linkedin = contacto.linkedin or ""
+
 
     # ESTO ES PARA ELIMINAR CONTACTOS
     def eliminar_contacto(self, nombre_contacto: str):
