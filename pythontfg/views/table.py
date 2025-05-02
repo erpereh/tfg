@@ -36,18 +36,14 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
         rx.table.cell(item.linkedin),
         rx.table.cell(
             rx.hstack(
-                rx.icon_button(
-                    rx.icon("pencil"),
-                    variant="ghost",
-                    color_scheme="red",
-                    on_click=lambda: Usuario.modificar_contacto(item.nombre),
-                    size="2",
-                ),
                 rx.dialog.root(
                     rx.dialog.trigger(
-                        rx.button(
+                        rx.icon_button(
                             rx.icon("pencil"),
+                            variant="ghost",
+                            color_scheme="red",
                             on_click=lambda: Usuario.preparar_formulario(item),
+                            size="2",
                         )
                     ),
                     rx.dialog.content(
@@ -241,11 +237,12 @@ def main_table() -> rx.Component:
                     value=Usuario.search_value,
                     placeholder="Buscar por nombre...",
                     size="3",
-                    max_width=["150px", "150px", "200px", "250px"],
                     width="100%",
+                    max_width=["300px", "350px", "400px", "500px"],  # más largo
                     variant="surface",
                     color_scheme="gray",
                     on_change=Usuario.set_search_value,
+                    min_width="230px",
                 ),
                 align="center",
                 justify="end",
@@ -256,8 +253,11 @@ def main_table() -> rx.Component:
                 rx.dialog.root(
                     rx.dialog.trigger(
                         rx.button(
-                            rx.icon("plus", size=26),
-                            rx.text("Añadir", size="4"),
+                            rx.icon("plus", size=20),
+                            "Añadir",
+                            size="3",
+                            variant="surface",
+                            display=["none", "none", "none", "flex"],
                         ),
                     ),
                     rx.dialog.content(
