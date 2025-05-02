@@ -316,13 +316,55 @@ class Usuario(rx.State):
         self.nuevo_linkedin = ""
         
         self.load_entries()
+        
+        
+    def modificar_contacto(self, nombre_contacto:str):
+        print("modificando...")
+        
+        supabase.table("contactos")\
+                .update({
+                    "nombre": self.nuevo_nombre,
+                    "email": self.nuevo_email,
+                    "telefono": self.nuevo_telefono,
+                    "instagram": self.nuevo_instagram,
+                    "facebook": self.nuevo_facebook,
+                    "twitter": self.nuevo_twitter,
+                    "linkedin": self.nuevo_linkedin,
+                })\
+                .eq("user_email", self.email)\
+                .eq("nombre", nombre_contacto)\
+                .execute()
+                
+        # Resetea campos del formulario
+        self.nuevo_nombre = ""
+        self.nuevo_email = ""
+        self.nuevo_telefono = ""
+        self.nuevo_instagram = ""
+        self.nuevo_facebook = ""
+        self.nuevo_twitter = ""
+        self.nuevo_linkedin = ""
+        
+        #borra el anterior contacto de la lista y añade el nuevo
+        self.contactos = [c for c in self.contactos if c.nombre != nombre_contacto]
+        self.contactos.append(Contacto(
+            nombre=self.nuevo_nombre,
+            email=self.nuevo_email,
+            telefono=self.nuevo_telefono,
+            instagram=self.nuevo_instagram,
+            facebook=self.nuevo_facebook,
+            twitter=self.nuevo_twitter,
+            linkedin=self.nuevo_linkedin,
+        ))
+        self.load_entries()
+        print(f"Contacto '{nombre_contacto}' modificado correctamente.")
+
 
     # ESTO ES PARA ELIMINAR CONTACTOS
     def eliminar_contacto(self, nombre_contacto: str):
         """Elimina un contacto del usuario actual por nombre."""
-        if not nombre_contacto:
+        """if not nombre_contacto:
             print("Debe proporcionar el nombre del contacto a eliminar.")
-            return
+            return"""
 
         # Elimina en la base de datos
         supabase.table("contactos")\

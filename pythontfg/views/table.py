@@ -37,11 +37,79 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
         rx.table.cell(
             rx.hstack(
                 rx.icon_button(
-                    rx.icon("trash"),
+                    rx.icon("pencil"),
                     variant="ghost",
                     color_scheme="red",
-                    #on_click=lambda: Usuario.modificar_contacto(item.nombre),
+                    on_click=lambda: Usuario.modificar_contacto(item.nombre),
                     size="2",
+                ),
+                rx.dialog.root(
+                    rx.dialog.trigger(
+                        rx.button(
+                            rx.icon("pencil"),
+                        ),
+                    ),
+                    rx.dialog.content(
+                        rx.dialog.title("Modificar usuario"),
+                        rx.dialog.description("Rellena los campos para modificar un usuario"),
+                        rx.form(
+                            rx.flex(
+                                rx.input(
+                                    placeholder="Nombre",
+                                    value=item.nombre,
+                                    on_change=Usuario.set_nuevo_nombre,
+                                    required=True,
+                                ),
+                                rx.input(
+                                    placeholder="Email",
+                                    value=item.email,
+                                    on_change=Usuario.set_nuevo_email,
+                                    required=True,
+                                ),
+                                rx.input(
+                                    placeholder="Teléfono",
+                                    value=item.telefono,
+                                    on_change=Usuario.set_nuevo_telefono,
+                                ),
+                                rx.input(
+                                    placeholder="Instagram",
+                                    value=item.instagram,
+                                    on_change=Usuario.set_nuevo_instagram,
+                                ),
+                                rx.input(
+                                    placeholder="Facebook",
+                                    value=item.facebook,
+                                    on_change=Usuario.set_nuevo_facebook,
+                                ),
+                                rx.input(
+                                    placeholder="Twitter",
+                                    value=item.twitter,
+                                    on_change=Usuario.set_nuevo_twitter,
+                                ),
+                                rx.input(
+                                    placeholder="LinkedIn",
+                                    value=item.linkedin,
+                                    on_change=Usuario.set_nuevo_linkedin,
+                                ),
+                                rx.flex(
+                                    rx.dialog.close(
+                                        rx.button("Cancelar", variant="soft", color_scheme="gray")
+                                    ),
+                                    rx.dialog.close(
+                                        rx.button(
+                                            "Guardar",
+                                            on_click=lambda: Usuario.modificar_contacto(item.nombre),
+                                        )
+                                    ),  
+                                    spacing="3",
+                                    justify="end",
+                                ),
+                                direction="column",
+                                spacing="4",
+                            ),
+                        ),
+                        max_width="450px",
+                    ),
                 ),
                 rx.icon_button(
                     rx.icon("trash"),
@@ -56,8 +124,6 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
         style={"_hover": {"bg": hover_color}, "bg": bg_color},
         align="center",
     )
-
-
 
 def _pagination_view() -> rx.Component:
     return (
