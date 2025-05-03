@@ -1,4 +1,5 @@
 from supabase import create_client, Client
+from typing import Optional
 
 
 SUPABASE_URL = "https://kpwbkzdjqgginzpfcpsd.supabase.co"
@@ -239,6 +240,9 @@ class Usuario(rx.State):
                 linkedin=contacto_data.get("linkedin", "")
             )
             self.contactos.append(contacto)
+            
+        if self.contactos and self.selected_contact is None:
+            self.selected_contact = self.contactos[0]
         
         print(f"{len(self.contactos)} contacto(s) cargado(s) correctamente.")
         print(self.contactos)
@@ -357,6 +361,14 @@ class Usuario(rx.State):
         ))
         self.load_entries()
         print(f"Contacto '{nombre_contacto}' modificado correctamente.")
+
+    selected_contact: Optional[Contacto] = None
+    
+    # Método para actualizar la selección de contacto.
+    def seleccionar_contacto(self, contacto: Contacto):
+        self.set_selected_contact(contacto)
+        # Opcional: preparar el formulario con los datos del contacto.
+        self.preparar_formulario(contacto)
 
     def preparar_formulario(self, contacto: Contacto):
         self.nuevo_nombre = contacto.nombre

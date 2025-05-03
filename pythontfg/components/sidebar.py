@@ -74,6 +74,7 @@ def sidebar_item(text: str, url: str) -> rx.Component:
             rx.match(
                 text,
                 ("Overview", sidebar_item_icon("home")),
+                ("Chat", sidebar_item_icon("message-circle")),
                 ("Contactos", sidebar_item_icon("table-2")),
                 ("About", sidebar_item_icon("book-open")),
                 ("Profile", sidebar_item_icon("user")),
@@ -131,6 +132,7 @@ def sidebar() -> rx.Component:
     # The ordered page routes.
     ordered_page_routes = [
         "/overview",
+        "/chat",
         "/contactos",
         "/about",
         "/profile",

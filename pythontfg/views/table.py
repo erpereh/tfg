@@ -41,7 +41,7 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
                         rx.icon_button(
                             rx.icon("pencil"),
                             variant="ghost",
-                            color_scheme="red",
+                            color_scheme="blue",
                             on_click=lambda: Usuario.preparar_formulario(item),
                             size="2",
                         )
@@ -345,7 +345,7 @@ def main_table() -> rx.Component:
                     _header_cell("Facebook", "facebook"),
                     _header_cell("Twitter", "twitter"),
                     _header_cell("Linkedin", "linkedin"),
-                    _header_cell("Eliminar", "trash"),
+                    _header_cell("Modificar", "chart-candlestick"),
                 ),
             ),
             rx.table.body(

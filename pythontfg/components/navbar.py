@@ -31,6 +31,7 @@ def menu_item(text: str, url: str) -> rx.Component:
                 text,
                 ("Overview", menu_item_icon("home")),
                 ("Table", menu_item_icon("table-2")),
+                ("Chat", menu_item_icon("message-circle")),
                 ("About", menu_item_icon("book-open")),
                 ("Profile", menu_item_icon("user")),
                 ("Settings", menu_item_icon("settings")),
