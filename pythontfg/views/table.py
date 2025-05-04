@@ -235,7 +235,7 @@ def main_table() -> rx.Component:
                         display=rx.cond(Usuario.search_value, "flex", "none"),
                     ),
                     value=Usuario.search_value,
-                    placeholder="Buscar por nombre...",
+                    placeholder="Buscar contacto...",
                     size="3",
                     width="100%",
                     max_width=["300px", "350px", "400px", "500px"],  # más largo
