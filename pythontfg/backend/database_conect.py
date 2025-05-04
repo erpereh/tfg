@@ -418,7 +418,7 @@ class Usuario(rx.State):
 
         # Filter items based on selected item
         if self.sort_value:
-            if self.sort_value in ["payment"]:
+            if self.sort_value in ["nombre"]:
                 items = sorted(
                     items,
                     key=lambda item: float(getattr(item, self.sort_value)),
@@ -508,3 +508,13 @@ class Usuario(rx.State):
 
         return rx.download(url="/contactos.csv")
 
+
+
+    #****************************************************************************************
+    #************************ TODO ESTO ES PARA LA PAG DEL CHAT *****************************
+    #****************************************************************************************
+
+    selected_contact_chat: Optional[Contacto] = None
+
+    def seleccionar_contacto_chat(self, contacto: Contacto):
+        self.selected_contact_chat = contacto
