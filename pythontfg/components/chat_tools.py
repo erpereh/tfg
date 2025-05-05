@@ -1,6 +1,44 @@
 import reflex as rx
 from pythontfg import styles
 from pythontfg.backend.database_conect import Usuario
+from pythontfg.components.button_redes_chat import button_redes
+
+def social_buttons() -> rx.Component:
+    return rx.box(
+        rx.vstack(
+            rx.flex(
+                button_redes(
+                    "instagram", "instagram", "Instagram", "#E1306C", "#C13584",
+                    on_click=rx.redirect("https://instagram.com")
+                ),
+                button_redes(
+                    "facebook", "facebook", "Facebook", "#3b5998", "#8b9dc3",
+                    on_click=rx.redirect("https://facebook.com")
+                ),
+                spacing="6",
+                justify="center"
+            ),
+            rx.flex(
+                button_redes(
+                    "twitter", "twitter", "Twitter", "#1DA1F2", "#1991DB",
+                    on_click=rx.redirect("https://twitter.com")
+                ),
+                button_redes(
+                    "linkedin", "linkedin", "LinkedIn", "#0077B5", "#005983",
+                    on_click=rx.redirect("https://linkedin.com")
+                ),
+                spacing="6",
+                justify="center",
+            ),
+            spacing="6",
+        ),
+        display="flex",
+        justify_content="center",
+        align_items="center",
+        width="100%",
+        height="100vh",
+    )
+
 
 def chatbar() -> rx.Component:
     return rx.box(
@@ -44,8 +82,8 @@ def chatbar() -> rx.Component:
         ),
         position="fixed",
         right="0",
-        top="4em",  # ❗ Ajusta al alto real de tu header
-        height="calc(100vh - 4em)",  # ❗ Así no pisa el header
+        top="4em",  # Ajusta según el alto real de tu header
+        height="calc(100vh - 4em)",  # Así no pisa el header
         width=styles.sidebar_content_width,
         background_color=styles.gray_bg_color,
         padding="1em",
@@ -53,7 +91,6 @@ def chatbar() -> rx.Component:
         overflow_y="auto",
         z_index="10",
     )
-
 
 def area_chat() -> rx.Component:
     return rx.box(
@@ -65,11 +102,8 @@ def area_chat() -> rx.Component:
                     font_size="1.5em",
                     font_weight="bold"
                 ),
-                rx.hstack(
-                    rx.text("Este es un prototipo del área de chat."),
-                    spacing="2",
-                    padding="1em",
-                ),
+                # Insertamos los botones de redes sociales con el nuevo estilo
+                social_buttons(),
                 spacing="4",
                 padding="2em",
                 width="100%",
@@ -83,6 +117,6 @@ def area_chat() -> rx.Component:
                 height="100vh"
             )
         ),
-        margin_right=styles.sidebar_content_width,  # ❗ deja hueco para la barra fija
+        margin_right=styles.sidebar_content_width,  # Deja hueco para la barra fija
         width="100%",
     )
