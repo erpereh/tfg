@@ -2,41 +2,41 @@ import reflex as rx
 from pythontfg import styles
 from pythontfg.backend.database_conect import Usuario
 from pythontfg.components.button_redes_chat import button_redes
-from pythontfg.backend.backend_chat import click_red_social
+from pythontfg.backend.backend_chat import ChatState
 
 def social_buttons() -> rx.Component:
     return rx.cond(
-        Usuario.selected_contact_chat,
+        ChatState.selected_contact_chat,
         rx.flex(
             rx.cond(
-                Usuario.selected_contact_chat.instagram,
+                ChatState.selected_contact_chat.instagram,
                 button_redes(
                     "instagram", "instagram", "#E1306C", "#C13584",
-                    on_click=Usuario.set_red_social("instagram")
+                    on_click=ChatState.set_red_social("instagram")
                 ),
                 rx.fragment()
             ),
             rx.cond(
-                Usuario.selected_contact_chat.facebook,
+                ChatState.selected_contact_chat.facebook,
                 button_redes(
                     "facebook", "facebook", "#3b5998", "#8b9dc3",
-                    on_click=Usuario.set_red_social("facebook")
+                    on_click=ChatState.set_red_social("facebook")
                 ),
                 rx.fragment()
             ),
             rx.cond(
-                Usuario.selected_contact_chat.twitter,
+                ChatState.selected_contact_chat.twitter,
                 button_redes(
                     "twitter", "twitter", "#1DA1F2", "#1991DB",
-                    on_click=Usuario.set_red_social("twitter")
+                    on_click=ChatState.set_red_social("twitter")
                 ),
                 rx.fragment()
             ),
             rx.cond(
-                Usuario.selected_contact_chat.linkedin,
+                ChatState.selected_contact_chat.linkedin,
                 button_redes(
                     "linkedin", "linkedin", "#0077B5", "#005983",
-                    on_click=Usuario.set_red_social("linkedin")
+                    on_click=ChatState.set_red_social("linkedin")
                 ),
                 rx.fragment()
             ),
@@ -72,12 +72,12 @@ def chatbar() -> rx.Component:
                         contacto.nombre,
                         font_size="1em",
                         font_weight=rx.cond(
-                            Usuario.selected_contact_chat.email == contacto.email,
+                            ChatState.selected_contact_chat.email == contacto.email,
                             "bold",
                             "normal"
                         ),
                         color=rx.cond(
-                            Usuario.selected_contact_chat.email == contacto.email,
+                            ChatState.selected_contact_chat.email == contacto.email,
                             styles.accent_text_color,
                             styles.text_color,
                         ),
@@ -86,7 +86,7 @@ def chatbar() -> rx.Component:
                     border_bottom=styles.border,
                     cursor="pointer",
                     border_radius="md",
-                    on_click=lambda contacto=contacto: Usuario.seleccionar_contacto_chat(contacto),
+                    on_click=lambda contacto=contacto: ChatState.seleccionar_contacto_chat(contacto),
                 )
             ),
             spacing="2",
@@ -106,10 +106,10 @@ def chatbar() -> rx.Component:
 def area_chat() -> rx.Component:
     return rx.box(
         rx.cond(
-            Usuario.selected_contact_chat,
+            ChatState.selected_contact_chat,
             rx.vstack(
                 rx.text(
-                    f"Chat con {Usuario.selected_contact_chat.nombre} en {Usuario.selected_red_social}",
+                    f"Chat con {ChatState.selected_contact_chat.nombre} en {ChatState.selected_red_social}",
                     font_size="1.5em",
                     font_weight="bold"
                 ),

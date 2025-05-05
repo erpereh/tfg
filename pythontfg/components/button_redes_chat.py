@@ -1,5 +1,4 @@
 import reflex as rx
-from pythontfg import styles
 
 button_style = {
     "width": "40px",              # Ancho fijo
