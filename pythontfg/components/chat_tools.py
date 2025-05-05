@@ -12,7 +12,7 @@ def social_buttons() -> rx.Component:
                 Usuario.selected_contact_chat.instagram,
                 button_redes(
                     "instagram", "instagram", "#E1306C", "#C13584",
-                    on_click=click_red_social("instagram")
+                    on_click=Usuario.set_red_social("instagram")
                 ),
                 rx.fragment()
             ),
@@ -20,7 +20,7 @@ def social_buttons() -> rx.Component:
                 Usuario.selected_contact_chat.facebook,
                 button_redes(
                     "facebook", "facebook", "#3b5998", "#8b9dc3",
-                    on_click=click_red_social("facebook")
+                    on_click=Usuario.set_red_social("facebook")
                 ),
                 rx.fragment()
             ),
@@ -28,7 +28,7 @@ def social_buttons() -> rx.Component:
                 Usuario.selected_contact_chat.twitter,
                 button_redes(
                     "twitter", "twitter", "#1DA1F2", "#1991DB",
-                    on_click=click_red_social("twitter")
+                    on_click=Usuario.set_red_social("twitter")
                 ),
                 rx.fragment()
             ),
@@ -36,7 +36,7 @@ def social_buttons() -> rx.Component:
                 Usuario.selected_contact_chat.linkedin,
                 button_redes(
                     "linkedin", "linkedin", "#0077B5", "#005983",
-                    on_click=click_red_social("linkedin")
+                    on_click=Usuario.set_red_social("linkedin")
                 ),
                 rx.fragment()
             ),

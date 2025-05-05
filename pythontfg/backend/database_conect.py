@@ -520,5 +520,6 @@ class Usuario(rx.State):
     def seleccionar_contacto_chat(self, contacto: Contacto):
         self.selected_contact_chat = contacto
     
-    def seleccionar_red_social(self, red_social: str):
+    def set_red_social(self, red_social: str):
         self.selected_red_social = red_social
+        print(f"Red social cambiada:{self.selected_red_social}")
