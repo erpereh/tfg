@@ -5,35 +5,48 @@ from pythontfg.components.button_redes_chat import button_redes
 from pythontfg.backend.backend_chat import click_red_social
 
 def social_buttons() -> rx.Component:
-    return rx.box(
-        rx.hstack(
-            rx.flex(
+    return rx.cond(
+        Usuario.selected_contact_chat,
+        rx.flex(
+            rx.cond(
+                Usuario.selected_contact_chat.instagram,
                 button_redes(
-                    "instagram", "instagram", "Instagram", "#E1306C", "#C13584",
+                    "instagram", "instagram", "#E1306C", "#C13584",
                     on_click=click_red_social("instagram")
                 ),
+                rx.fragment()
+            ),
+            rx.cond(
+                Usuario.selected_contact_chat.facebook,
                 button_redes(
-                    "facebook", "facebook", "Facebook", "#3b5998", "#8b9dc3",
+                    "facebook", "facebook", "#3b5998", "#8b9dc3",
                     on_click=click_red_social("facebook")
                 ),
+                rx.fragment()
+            ),
+            rx.cond(
+                Usuario.selected_contact_chat.twitter,
                 button_redes(
-                    "twitter", "twitter", "Twitter", "#1DA1F2", "#1991DB",
+                    "twitter", "twitter", "#1DA1F2", "#1991DB",
                     on_click=click_red_social("twitter")
                 ),
+                rx.fragment()
+            ),
+            rx.cond(
+                Usuario.selected_contact_chat.linkedin,
                 button_redes(
-                    "linkedin", "linkedin", "LinkedIn", "#0077B5", "#005983",
+                    "linkedin", "linkedin", "#0077B5", "#005983",
                     on_click=click_red_social("linkedin")
                 ),
-                spacing="1",
-                justify="center",
+                rx.fragment()
             ),
-            spacing="6",
+            spacing="2",
+            justify="center",
+            display="flex",
+            align_items="center",
+            width="100%",
         ),
-        display="flex",
-        justify_content="center",
-        align_items="center",
-        width="100%",
-        height="100vh",
+        rx.box()  # Si no hay contacto seleccionado, no muestra nada
     )
 
 
@@ -96,7 +109,7 @@ def area_chat() -> rx.Component:
             Usuario.selected_contact_chat,
             rx.vstack(
                 rx.text(
-                    f"Chat con {Usuario.selected_contact_chat.nombre}",
+                    f"Chat con {Usuario.selected_contact_chat.nombre} en {Usuario.selected_red_social}",
                     font_size="1.5em",
                     font_weight="bold"
                 ),

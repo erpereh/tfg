@@ -11,5 +11,4 @@ def chat() -> rx.Component:
         area_chat(),  # Área de chat
         spacing="0",
         width="100%",
-        height="100vh",
     )
