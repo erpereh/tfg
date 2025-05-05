@@ -509,12 +509,16 @@ class Usuario(rx.State):
         return rx.download(url="/contactos.csv")
 
 
-
     #****************************************************************************************
     #************************ TODO ESTO ES PARA LA PAG DEL CHAT *****************************
     #****************************************************************************************
 
     selected_contact_chat: Optional[Contacto] = None
 
+    selected_red_social: str = ""
+
     def seleccionar_contacto_chat(self, contacto: Contacto):
         self.selected_contact_chat = contacto
+    
+    def seleccionar_red_social(self, red_social: str):
+        self.selected_red_social = red_social

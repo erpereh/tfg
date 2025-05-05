@@ -2,32 +2,29 @@ import reflex as rx
 from pythontfg import styles
 from pythontfg.backend.database_conect import Usuario
 from pythontfg.components.button_redes_chat import button_redes
+from pythontfg.backend.backend_chat import click_red_social
 
 def social_buttons() -> rx.Component:
     return rx.box(
-        rx.vstack(
+        rx.hstack(
             rx.flex(
                 button_redes(
                     "instagram", "instagram", "Instagram", "#E1306C", "#C13584",
-                    on_click=rx.redirect("https://instagram.com")
+                    on_click=click_red_social("instagram")
                 ),
                 button_redes(
                     "facebook", "facebook", "Facebook", "#3b5998", "#8b9dc3",
-                    on_click=rx.redirect("https://facebook.com")
+                    on_click=click_red_social("facebook")
                 ),
-                spacing="6",
-                justify="center"
-            ),
-            rx.flex(
                 button_redes(
                     "twitter", "twitter", "Twitter", "#1DA1F2", "#1991DB",
-                    on_click=rx.redirect("https://twitter.com")
+                    on_click=click_red_social("twitter")
                 ),
                 button_redes(
                     "linkedin", "linkedin", "LinkedIn", "#0077B5", "#005983",
-                    on_click=rx.redirect("https://linkedin.com")
+                    on_click=click_red_social("linkedin")
                 ),
-                spacing="6",
+                spacing="1",
                 justify="center",
             ),
             spacing="6",
@@ -54,6 +51,7 @@ def chatbar() -> rx.Component:
                 align_items="center",
                 margin_bottom="1em",
             ),
+            social_buttons(),
             rx.foreach(
                 Usuario.filtered_sorted_items,
                 lambda contacto: rx.box(
@@ -103,7 +101,6 @@ def area_chat() -> rx.Component:
                     font_weight="bold"
                 ),
                 # Insertamos los botones de redes sociales con el nuevo estilo
-                social_buttons(),
                 spacing="4",
                 padding="2em",
                 width="100%",
