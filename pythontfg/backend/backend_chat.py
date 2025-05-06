@@ -41,13 +41,11 @@ class ChatState(rx.State):
             .execute()
         )
 
-        print("Mensajes obtenidos:", response.data)  # <-- Añade esto para ver los datos en consola
-
         if response.data:
             self.messages = [
                 Mensaje(
                     mensaje=msg["mensaje"],
-                    fecha_hora=msg["fecha_hora"],
+                    fecha_hora=datetime.fromisoformat(msg["fecha_hora"]).strftime("%H:%M"),
                     enviado=msg["enviado"]
                 )
                 for msg in response.data
@@ -86,8 +84,7 @@ class ChatState(rx.State):
         return self.selected_contact_chat is not None and self.selected_red_social != ""
 
     def send_message(self):
-        print(f"Enviando mensaje.... {self.user_input}")
-        """if self.user_input.strip():
+        if self.user_input.strip():
             now = datetime.utcnow().isoformat()
 
             nuevo_mensaje = Mensaje(
@@ -98,7 +95,7 @@ class ChatState(rx.State):
 
             # Guardar en Supabase
             supabase.from_("mensajes").insert({
-                "user_email": Usuario.email,
+                "user_email": self.user_email,
                 "nombre_contacto": self.selected_contact_chat.nombre,
                 "mensaje": nuevo_mensaje.mensaje,
                 "fecha_hora": nuevo_mensaje.fecha_hora,
@@ -106,9 +103,10 @@ class ChatState(rx.State):
                 "red_social": self.selected_red_social
             }).execute()
 
+            nuevo_mensaje.fecha_hora = datetime.fromisoformat(nuevo_mensaje.fecha_hora).strftime("%H:%M")
             # Actualizar en el frontend
             self.messages.append(nuevo_mensaje)
-            self.user_input = """""
+            self.user_input = ""
     
 
 

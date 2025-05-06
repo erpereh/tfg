@@ -104,6 +104,7 @@ def chatbar() -> rx.Component:
         z_index="10",
     )
 
+
 def area_chat() -> rx.Component:
     return rx.box(
         rx.cond(
@@ -119,11 +120,11 @@ def area_chat() -> rx.Component:
                     chat_ui(),
                     rx.text("Selecciona todos los elementos primero.", color="gray"),
                 ),
-                # Insertamos los botones de redes sociales con el nuevo estilo
                 spacing="4",
                 padding="2em",
                 width="100%",
-                height="100vh",
+                flex="1",              # Permitir expansión
+                min_height="100vh",    # Asegurar altura total
                 overflow_y="auto",
             ),
             rx.box(
@@ -133,7 +134,7 @@ def area_chat() -> rx.Component:
                 height="100vh"
             )
         ),
-
-        margin_right=styles.sidebar_content_width,  # Deja hueco para la barra fija
+        margin_right=styles.sidebar_content_width,
         width="100%",
+        height="100%",
     )
