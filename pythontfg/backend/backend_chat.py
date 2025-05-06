@@ -19,14 +19,22 @@ class ChatState(rx.State):
     def seleccionar_contacto_chat(self, contacto: Contacto):
         self.selected_contact_chat = contacto
         print(f"Contacto seleccionado: {self.selected_contact_chat.nombre}")
-        if(self.selected_red_social=="instagram" and self.selected_contact_chat.instagram==""):
-            self.selected_red_social=""
-        elif(self.selected_red_social=="facebook" and self.selected_contact_chat.facebook==""):
-            self.selected_red_social=""
-        elif(self.selected_red_social=="twitter" and self.selected_contact_chat.twitter==""):
-            self.selected_red_social=""
-        elif(self.selected_red_social=="linkedin" and self.selected_contact_chat.linkedin==""):
-            self.selected_red_social=""
+        redes = {
+            "instagram": self.selected_contact_chat.instagram,
+            "facebook": self.selected_contact_chat.facebook,
+            "twitter": self.selected_contact_chat.twitter,
+            "linkedin": self.selected_contact_chat.linkedin,
+        }
+
+        # Si la actual está vacía o no existe, buscar la siguiente disponible
+        if self.selected_red_social not in redes or redes[self.selected_red_social] == "":
+            for red, valor in redes.items():
+                if valor != "":
+                    self.selected_red_social = red
+                    break
+            else:
+                self.selected_red_social = ""
+
     
     def set_red_social(self, red_social: str):
         self.selected_red_social = red_social
@@ -43,21 +51,4 @@ class ChatState(rx.State):
             self.messages.append(("bot", "Calla putita"))
             self.user_input = ""
 
-"""
-def click_red_social(nombre_red: str) -> rx.EventHandler:
-    def handler():
-        print(f"Botón pulsado: {nombre_red}")
-
-        if nombre_red == "instagram":
-            Usuario.set_red_social("instagram")
-        elif nombre_red == "facebook":
-           Usuario.set_red_social("facebook")
-        elif nombre_red == "twitter":
-            Usuario.set_red_social("twitter")
-        elif nombre_red == "linkedin":
-            Usuario.set_red_social("linkedin")
-        else:
-            return rx.event(handler)
-    #return rx.redirect("/nuevo_chat/")
-"""
 
