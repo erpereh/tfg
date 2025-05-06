@@ -18,6 +18,15 @@ class ChatState(rx.State):
 
     def seleccionar_contacto_chat(self, contacto: Contacto):
         self.selected_contact_chat = contacto
+        print(f"Contacto seleccionado: {self.selected_contact_chat.nombre}")
+        if(self.selected_red_social=="instagram" and self.selected_contact_chat.instagram==""):
+            self.selected_red_social=""
+        elif(self.selected_red_social=="facebook" and self.selected_contact_chat.facebook==""):
+            self.selected_red_social=""
+        elif(self.selected_red_social=="twitter" and self.selected_contact_chat.twitter==""):
+            self.selected_red_social=""
+        elif(self.selected_red_social=="linkedin" and self.selected_contact_chat.linkedin==""):
+            self.selected_red_social=""
     
     def set_red_social(self, red_social: str):
         self.selected_red_social = red_social
