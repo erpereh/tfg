@@ -1,6 +1,13 @@
 import reflex as rx
 from pythontfg.backend.database_conect import Contacto
+from pythontfg.backend.database_conect import supabase
 from typing import Optional
+
+
+class Mensaje(rx.Base):
+    mensaje: str = ""
+    fecha_hora: str = ""
+    enviado: bool = False
 
 class ChatState(rx.State):
     
@@ -25,7 +32,6 @@ class ChatState(rx.State):
             "twitter": self.selected_contact_chat.twitter,
             "linkedin": self.selected_contact_chat.linkedin,
         }
-
         # Si la actual está vacía o no existe, buscar la siguiente disponible
         if self.selected_red_social not in redes or redes[self.selected_red_social] == "":
             for red, valor in redes.items():
@@ -34,6 +40,8 @@ class ChatState(rx.State):
                     break
             else:
                 self.selected_red_social = ""
+        
+
 
     
     def set_red_social(self, red_social: str):
