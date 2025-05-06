@@ -7,6 +7,14 @@ class ChatState(rx.State):
     selected_contact_chat: Optional[Contacto] = None
 
     selected_red_social: str = ""
+    
+    user_input: str = ""
+    
+    messages: list[tuple[str, str]] = [  # (remitente, mensaje)
+        ("user", "Hola bb"),
+        ("bot", "Q pasa mi loco"),
+    ]
+
 
     def seleccionar_contacto_chat(self, contacto: Contacto):
         self.selected_contact_chat = contacto
@@ -15,8 +23,16 @@ class ChatState(rx.State):
         self.selected_red_social = red_social
         print(f"Red social cambiada:{self.selected_red_social}")
 
+    def is_all_selected(self) -> bool:
+        return self.selected_contact_chat is not None and self.selected_red_social != ""
 
-
+    def send_message(self):
+        if self.user_input.strip():
+            # Agrega el mensaje del usuario
+            self.messages.append(("user", self.user_input.strip()))
+            # Respuesta fija del bot por ahora
+            self.messages.append(("bot", "Calla putita"))
+            self.user_input = ""
 
 """
 def click_red_social(nombre_red: str) -> rx.EventHandler:

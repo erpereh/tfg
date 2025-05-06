@@ -3,6 +3,7 @@ from pythontfg import styles
 from pythontfg.backend.database_conect import Usuario
 from pythontfg.components.button_redes_chat import button_redes
 from pythontfg.backend.backend_chat import ChatState
+from pythontfg.components.chat_usr import chat_ui
 
 def social_buttons() -> rx.Component:
     return rx.cond(
@@ -113,6 +114,11 @@ def area_chat() -> rx.Component:
                     font_size="1.5em",
                     font_weight="bold"
                 ),
+                rx.cond(
+                    ChatState.is_all_selected(),
+                    chat_ui(),
+                    rx.text("Selecciona todos los elementos primero.", color="gray"),
+                ),
                 # Insertamos los botones de redes sociales con el nuevo estilo
                 spacing="4",
                 padding="2em",
@@ -127,6 +133,7 @@ def area_chat() -> rx.Component:
                 height="100vh"
             )
         ),
+
         margin_right=styles.sidebar_content_width,  # Deja hueco para la barra fija
         width="100%",
     )
