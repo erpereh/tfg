@@ -87,7 +87,7 @@ def chatbar() -> rx.Component:
                     border_bottom=styles.border,
                     cursor="pointer",
                     border_radius="md",
-                    on_click=lambda contacto=contacto: ChatState.seleccionar_contacto_chat(contacto),
+                    on_click=lambda contacto=contacto: ChatState.seleccionar_contacto_chat(contacto, Usuario.email),
                 )
             ),
             spacing="2",

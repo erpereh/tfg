@@ -18,7 +18,14 @@ def chat_bubble(sender, text):
 def chat_ui():
     return rx.vstack(
         rx.box(
-            rx.foreach(ChatState.messages, lambda msg: chat_bubble(msg[0], msg[1])),
+            rx.foreach(
+                ChatState.messages,
+                lambda msg: rx.cond(
+                    msg.enviado,
+                    chat_bubble("user", msg.mensaje),
+                    chat_bubble("contact", msg.mensaje)
+                ),
+            ),
             overflow_y="auto",
             height="400px",
             width="100%",
