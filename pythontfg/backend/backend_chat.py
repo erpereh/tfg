@@ -107,6 +107,9 @@ class ChatState(rx.State):
             # Actualizar en el frontend
             self.messages.append(nuevo_mensaje)
             self.user_input = ""
+    @rx.event
+    def write_with_ia(self): 
+        print("Escribiendo con IA...")
     
 
 

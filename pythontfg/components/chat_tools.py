@@ -132,7 +132,7 @@ def area_chat() -> rx.Component:
                 width="100%",
                 padding="2em",
                 height="100vh"
-            )
+            ),
         ),
         margin_right=styles.sidebar_content_width,
         width="100%",

@@ -1,9 +1,10 @@
 import reflex as rx
 from pythontfg.backend.backend_chat import ChatState
+from pythontfg.backend.backend_chat import Mensaje
 
 
 
-def chat_bubble(msg):
+def chat_bubble(msg: Mensaje) -> rx.Component:
     return rx.hstack(
         rx.box(
             rx.hstack(
@@ -16,6 +17,8 @@ def chat_bubble(msg):
             border_radius="lg",
             max_width="80%",
             padding="10px",
+            max_height="200px",
+            overflow_y="auto",
         ),
         justify=rx.cond(msg.enviado, "end", "start"),  # <- aquí decides si va a la derecha o a la izquierda
         width="100%",
@@ -29,16 +32,25 @@ def chat_ui():
     return rx.vstack(
         rx.box(
             rx.foreach(ChatState.messages, chat_bubble),
-            overflow_y="auto",
-            height="100%",            # <- ocupará todo el alto disponible
+            overflow_y="auto",   # aparece scroll solo si excede la altura
+            height="70vh",       # fija al 70 % del viewport
             width="100%",
             padding="10px",
             border="1px solid #444",
             border_radius="lg",
             bg="#1a1a1a",
-            flex="1"                  # <- permite que esta caja crezca
         ),
         rx.hstack(
+            # Botón de IA
+            rx.button(
+                rx.hstack(
+                    rx.icon(tag="bot", size=24, margin_right="1"), 
+                    align_items="center",
+                ),
+                on_click=ChatState.write_with_ia(),
+                variant="solid",
+            ),
+
             rx.input(
                 value=ChatState.user_input,
                 placeholder="Escribe un mensaje...",
