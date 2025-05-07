@@ -1,10 +1,15 @@
 import reflex as rx
 from pythontfg.backend.database_conect import Contacto
 from pythontfg.backend.database_conect import supabase
-from pythontfg.backend.database_conect import Usuario
+from pythontfg.backend.config import KEY_OPEN_ROUTER, BASE_URL_OPEN_ROUTER
 from typing import List, Optional
 from datetime import datetime
+from openai import OpenAI
 
+client = OpenAI(
+  base_url=BASE_URL_OPEN_ROUTER,
+  api_key=KEY_OPEN_ROUTER,
+)
 
 class Mensaje(rx.Base):
     mensaje: str = ""
@@ -21,6 +26,8 @@ class ChatState(rx.State):
     
     messages: List[Mensaje] = []
 
+    is_generating_ia: bool = False
+    
     def seleccionar_contacto_chat(self, contacto: Contacto, user_email: str):
         self.user_email = user_email
         self.selected_contact_chat = contacto
@@ -85,7 +92,7 @@ class ChatState(rx.State):
 
     def send_message(self):
         if self.user_input.strip():
-            now = datetime.utcnow().isoformat()
+            now = datetime.now().isoformat()
 
             nuevo_mensaje = Mensaje(
                 mensaje=self.user_input,
@@ -107,10 +114,46 @@ class ChatState(rx.State):
             # Actualizar en el frontend
             self.messages.append(nuevo_mensaje)
             self.user_input = ""
-    @rx.event
-    def write_with_ia(self): 
-        print("Escribiendo con IA...")
+            
+
+    @rx.event(background=True)
+    async def write_with_ia(self):
+        async with self:
+            self.is_generating_ia = True
+        yield  # <- informa al cliente que hay un cambio de estado
+
+        history = [
+            {"role": "user" if m.enviado else "assistant", "content": m.mensaje}
+            for m in self.messages
+        ]
+
+        system_prompt = {
+            "role": "system",
+            "content": "Eres una persona muy maja que se hace pasar por la persona original respondiendo mensajes de redes sociales, debes comportarte como tal y no hacer preguntas como, ¿tienes mas dudas?. Responde de forma amigable. Respondes con mesajes cortos, propios de un chat."
+        }
+
+        api_messages = [system_prompt] + history
+
+        response = client.chat.completions.create(
+            model="deepseek/deepseek-chat-v3-0324:free",
+            messages=api_messages,
+        )
+
+        ia_text = response.choices[0].message.content
+        
+        async with self:
+            self.user_input = ia_text
+            self.is_generating_ia = False
+        yield  # <- informa al cliente que hay un cambio de estado
+
+        """
+        EN CASO DE QUIERER GUARDAR EN LA BASE DE DATOS
+        now = datetime.now().isoformat()
+        async with self:
+            mensaje_ia = Mensaje(mensaje=ia_text, fecha_hora=now, enviado=False)
+            self.messages.append(mensaje_ia)
+            self.user_input = ia_text
+            self.is_generating_ia = False
+        yield  # <- para que Reflex actualice la UI
     
-
-
-
+        """

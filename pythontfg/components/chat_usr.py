@@ -30,6 +30,23 @@ def chat_bubble(msg: Mensaje) -> rx.Component:
 
 def chat_ui():
     return rx.vstack(
+        rx.cond(
+            ChatState.is_generating_ia,
+            rx.box(
+                rx.spinner(size="3"),
+                rx.text("Generando mensaje con IA...", color="white"),
+                position="absolute",
+                top="0",
+                left="0",
+                width="100%",
+                height="100%",
+                bg="rgba(0, 0, 0, 0.5)",
+                display="flex",
+                align_items="center",
+                justify_content="center",
+                z_index="100",
+            )
+        ),
         rx.box(
             rx.foreach(ChatState.messages, chat_bubble),
             overflow_y="auto",   # aparece scroll solo si excede la altura
@@ -44,11 +61,12 @@ def chat_ui():
             # Botón de IA
             rx.button(
                 rx.hstack(
-                    rx.icon(tag="bot", size=24, margin_right="1"), 
+                    rx.icon(tag="lightbulb", size=24, margin_right="1"), 
                     align_items="center",
                 ),
-                on_click=ChatState.write_with_ia(),
+                on_click=ChatState.write_with_ia,
                 variant="solid",
+                disabled=ChatState.is_generating_ia,
             ),
 
             rx.input(

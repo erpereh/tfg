@@ -4,7 +4,7 @@ KEY_OPEN_ROUTER = "sk-or-v1-79139a9a50854aa299cef838d33fbbb468776d7ea722751f6c12
 
 
 """ BASE_URL IA """
-BASE_URL_OPEN_ROUTER="https://openrouter.ai/api/v1",
+BASE_URL_OPEN_ROUTER="https://openrouter.ai/api/v1"
 
 
 """ SUPABASE """
