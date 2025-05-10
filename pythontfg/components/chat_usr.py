@@ -68,8 +68,7 @@ def chat_ui():
                 variant="solid",
                 disabled=ChatState.is_generating_ia,
             ),
-
-            rx.input(
+            rx.text_area(
                 value=ChatState.user_input,
                 placeholder="Escribe un mensaje...",
                 on_change=ChatState.set_user_input,
@@ -77,6 +76,9 @@ def chat_ui():
                 color="white",
                 border="1px solid #555",
                 flex="1",
+                min_rows=1,  # número mínimo de filas
+                max_rows=6,  # límite para que no crezca infinito
+                resize="none",  # evita que el usuario redimensione manualmente
             ),
             rx.button("Enviar", on_click=ChatState.send_message, bg="#8265d4", color="white"),
             width="100%",
