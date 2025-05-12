@@ -403,35 +403,39 @@ class Usuario(rx.State):
     #****************************************************************************************
     #************************ TODO ESTO ES PARA LA TABLA DE CONTACTOS ***********************
     #****************************************************************************************
-    
     search_value: str = ""
     sort_value: str = ""
     sort_reverse: bool = False
 
-    total_items: int = 0
     offset: int = 0
-    limit: int = 12  # Number of rows per page
-    
-    @rx.var(cache=True)
+    limit: int = 10  # Número de filas por página
+
+    @rx.event
+    def load_entries(self):
+        self.cargar_contactos()
+
+
+    @rx.var
     def filtered_sorted_items(self) -> List[Contacto]:
         items = self.contactos
 
-        # Filter items based on selected item
-        if self.sort_value:
-            if self.sort_value in ["teléfono"]:
-                self.sort_value="telefono"
+        # Ordenamiento
+        sort_field = self.sort_value
+        if sort_field == "teléfono":
+            sort_field = "telefono"
+
+        if sort_field:
             items = sorted(
                 items,
-                key=lambda item: str(getattr(item, self.sort_value)).lower(),
+                key=lambda item: str(getattr(item, sort_field)).lower(),
                 reverse=self.sort_reverse,
             )
 
-        # Filter items based on search value
+        # Búsqueda
         if self.search_value:
             search_value = self.search_value.lower()
             items = [
-                item
-                for item in items
+                item for item in items
                 if any(
                     search_value in str(getattr(item, attr)).lower()
                     for attr in ["nombre", "email", "telefono", "instagram", "facebook", "twitter", "linkedin"]
@@ -440,21 +444,21 @@ class Usuario(rx.State):
 
         return items
 
-    @rx.var(cache=True)
+    @rx.var
     def page_number(self) -> int:
         return (self.offset // self.limit) + 1
 
-    @rx.var(cache=True)
+    @rx.var
     def total_pages(self) -> int:
-        return (self.total_items // self.limit) + (
-            1 if self.total_items % self.limit else 1
-        )
+        total = len(self.filtered_sorted_items)
+        return (total // self.limit) + (1 if total % self.limit else 0) or 1
 
-    @rx.var(cache=True, initial_value=[])
+    @rx.var(initial_value=[])
     def get_current_page(self) -> list[Contacto]:
-        start_index = self.offset
+        items = self.filtered_sorted_items
+        start_index = min(self.offset, max(len(items) - self.limit, 0))
         end_index = start_index + self.limit
-        return self.filtered_sorted_items[start_index:end_index]
+        return items[start_index:end_index]
 
     def prev_page(self):
         if self.page_number > 1:
@@ -470,26 +474,31 @@ class Usuario(rx.State):
     def last_page(self):
         self.offset = (self.total_pages - 1) * self.limit
 
-    def load_entries(self):
-        self.cargar_contactos()
+    def set_search_value(self, value: str):
+        self.search_value = value
+        self.offset = 0  # Reiniciar página al buscar
+
+    def set_sort_value(self, value: str):
+        if value == "teléfono":
+            value = "telefono"
+        self.sort_value = value
+        self.offset = 0  # Reiniciar página al ordenar
 
     def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
-        self.load_entries()
-        
+        self.offset = 0  # Reiniciar al cambiar el orden
+
+    def load_entries(self):
+        self.cargar_contactos()
 
     def export_to_csv(self):
         """Genera un CSV con los contactos y lo pone disponible para descargar."""
         file_path = Path("assets/contactos.csv")
-
-        # Crear carpeta 'assets' si no existe
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         with file_path.open(mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            # Cabecera
             writer.writerow(["Nombre", "Email", "Teléfono", "Instagram", "Facebook", "Twitter", "LinkedIn"])
-            # Filas de contactos
             for contacto in self.contactos:
                 writer.writerow([
                     contacto.nombre,
