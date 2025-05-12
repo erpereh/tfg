@@ -17,6 +17,15 @@ class Mensaje(rx.Base):
     fecha_hora: str = ""
     enviado: bool = False
 
+    # creación eventos en Calendar
+    evento_localizado: bool = False
+    evento: str = ""
+    fecha_dt: datetime = datetime.now()  # ← esto sí es válido
+    duracion: float = 1.0
+    def crear_evento_mensaje(self):
+        crear_evento_google_calendar(self.evento, self.fecha_dt, self.duracion)
+
+
 class ChatState(rx.State):
     
     user_email: str =""
@@ -29,15 +38,16 @@ class ChatState(rx.State):
 
     is_generating_ia: bool = False
     
-    def seleccionar_contacto_chat(self, contacto: Contacto, user_email: str):
+    @rx.event
+    async def seleccionar_contacto_chat(self, contacto: Contacto, user_email: str):
         self.user_email = user_email
         self.selected_contact_chat = contacto
         print(f"Contacto seleccionado: {self.selected_contact_chat.nombre}")
-        
-        self.seleccionar_red_social_disponible()
+        return type(self).seleccionar_red_social_disponible()
+
             
-            
-    def cargar_mensajes_contacto(self):
+    @rx.event
+    async def cargar_mensajes_contacto(self):
         response = (
             supabase
             .from_("mensajes")
@@ -58,20 +68,20 @@ class ChatState(rx.State):
                 )
                 for msg in response.data
             ]
-            print(f"{len(self.messages)} mensajes cargados")  # <-- Confirmación
+
+            print(f"{len(self.messages)} mensajes cargados")
+
             ult_mensaje_recibido = next((m for m in reversed(self.messages) if not m.enviado), None)
             if ult_mensaje_recibido:
                 print(f"+++++++++++++ Mensaje: {ult_mensaje_recibido.mensaje}")
-                self.search_event(ult_mensaje_recibido)
-                print("*************************************")
+                return type(self).search_event(ult_mensaje_recibido)
         else:
             print("No se encontraron mensajes.")
 
 
-      
-        
     
-    def seleccionar_red_social_disponible(self):
+    @rx.event
+    async def seleccionar_red_social_disponible(self):
         redes = {
             "instagram": self.selected_contact_chat.instagram,
             "facebook": self.selected_contact_chat.facebook,
@@ -80,19 +90,22 @@ class ChatState(rx.State):
         }
         for red, valor in redes.items():
             if valor != "":
-                self.set_red_social(red)
-                break
-        else:
-            self.selected_red_social = ""
+                return type(self).set_red_social(red)
+        self.selected_red_social = ""
+
+
 
 
     
-    def set_red_social(self, red_social: str):
+    @rx.event
+    async def set_red_social(self, red_social: str):
         self.selected_red_social = red_social
         print(f"Red social cambiada:{self.selected_red_social}")
         if self.selected_red_social != "":
             self.messages = []
-            self.cargar_mensajes_contacto()
+            return type(self).cargar_mensajes_contacto()
+
+
 
     def is_all_selected(self) -> bool:
         return self.selected_contact_chat is not None and self.selected_red_social != ""
@@ -128,12 +141,17 @@ class ChatState(rx.State):
     #****************************************************************************************
     #******************* TODO ESTO ES DETECTAR EVENTO CON IA ********************************
     #****************************************************************************************
+    
+    @rx.event(background=True)
+    async def search_event(self, message: Mensaje):
+        async with self:
+            pass  # Aquí podrías poner un flag como self.is_generating_event = True si lo necesitas
+        yield  # Para notificar al cliente que hay un cambio (aunque no lo uses visualmente aún)
 
-    def search_event(self, message: Mensaje):
         history = [
             {"role": "user", "content": message.mensaje}
         ]
-        
+
         hoy = datetime.now().strftime("%Y-%m-%d")
 
         system_prompt = {
@@ -144,7 +162,7 @@ class ChatState(rx.State):
                 "El formato que debes poner será el siguiente: evento:título_evento|fecha:AAAA-MM-DDTHH:MM:SS|duracion:HH. "
                 "En caso de que no se localice un evento o una fecha, debes devolver evento:null|fecha:null|duracion:null. "
                 "En caso de que no se localice una hora concreta pero sí una fecha y evento, deberás poner: evento:título_evento|fecha:AAAA-MM-DDT00:00:00|duracion:24. "
-                "En caso de que no se localice una duración concreta, se debe estimar según el tipo de evento en horas, siendo el mínimo 1 hora. "
+                "En caso de que no se localice una duración concreta, se debe estimar según el tipo de evento en horas, siendo el mínimo 1 hora."
             )
         }
 
@@ -156,8 +174,13 @@ class ChatState(rx.State):
                 messages=api_messages,
             )
 
+            if not response or not response.choices:
+                print("La respuesta de la IA es nula o vacía")
+                return
+
             ia_text = response.choices[0].message.content.strip()
             print("Respuesta IA:", ia_text)
+
 
             # Parsear la respuesta tipo: "evento:Reunión|fecha:2025-05-11T15:00:00|duracion:1"
             partes = ia_text.split("|")
@@ -172,13 +195,32 @@ class ChatState(rx.State):
                 except ValueError:
                     duracion = 1.0  # Valor por defecto si la IA se equivoca
                 print(f"Evento registrado: {evento}, hora evento {fecha_str}, duración: {duracion}h")
-                crear_evento_google_calendar(evento, fecha_dt, duracion)
+                async with self:
+                    message.evento = evento
+                    message.fecha_dt = fecha_dt
+                    message.duracion = duracion
+                    message.evento_localizado = True
+
+                    # Reemplaza el mensaje dentro del array para que Reflex detecte el cambio
+                    for i, m in enumerate(self.messages):
+                        if m.mensaje == message.mensaje and not m.enviado:
+                            self.messages[i] = message
+                            break
+                yield  # Notifica a Reflex el cambio de estado
             else:
                 print("No se detectó ningún evento o fecha útil.")
 
-
         except Exception as e:
             print("Error procesando el evento:", e)
+
+        yield  # Cierre del evento en Reflex (aunque no cambies estado, es buena práctica)
+
+
+    @rx.event
+    def confirmar_evento(self, index: int):
+        mensaje = self.messages[index]
+        if mensaje.evento_localizado:
+            crear_evento_google_calendar(mensaje.evento, mensaje.fecha_dt, mensaje.duracion)
 
     
     #****************************************************************************************

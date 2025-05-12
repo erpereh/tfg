@@ -4,14 +4,28 @@ from pythontfg.backend.backend_chat import Mensaje
 
 
 
-def chat_bubble(msg: Mensaje) -> rx.Component:
+def chat_bubble(msg: Mensaje, index: int) -> rx.Component:
     return rx.hstack(
         rx.box(
-            rx.hstack(
-                rx.text(msg.mensaje, color="white", flex="1"),
-                rx.text(msg.fecha_hora, font_size="0.8em", color="white", margin_left="10px"),
-                justify="between",
-                width="100%",
+            rx.vstack(
+                rx.hstack(
+                    rx.text(msg.mensaje, color="white", flex="1"),
+                    rx.text(msg.fecha_hora, font_size="0.8em", color="white", margin_left="10px"),
+                    justify="between",
+                    width="100%",
+                ),
+                rx.cond(
+                    msg.evento_localizado,
+                    rx.button(
+                        rx.icon("calendar", color="white"),  # icono blanco
+                        title=f"Crear evento: {msg.evento}",
+                        on_click=lambda: ChatState.confirmar_evento(index),
+                        size="2",
+                        variant="ghost",  # mejor que outline para que no tenga borde
+                        margin_top="5px",
+                    ),
+                    rx.fragment()
+                ),
             ),
             bg=rx.cond(msg.enviado, "#333", "#8265d4"),
             border_radius="lg",
@@ -20,10 +34,12 @@ def chat_bubble(msg: Mensaje) -> rx.Component:
             max_height="200px",
             overflow_y="auto",
         ),
-        justify=rx.cond(msg.enviado, "end", "start"),  # <- aquí decides si va a la derecha o a la izquierda
+        justify=rx.cond(msg.enviado, "end", "start"),
         width="100%",
         margin_bottom="0.5em",
     )
+
+
 
 
 
@@ -48,7 +64,10 @@ def chat_ui():
             )
         ),
         rx.box(
-            rx.foreach(ChatState.messages, chat_bubble),
+            rx.foreach(
+                ChatState.messages,
+                lambda msg, i: chat_bubble(msg, i)
+            ),
             overflow_y="auto",   # aparece scroll solo si excede la altura
             height="70vh",       # fija al 70 % del viewport
             width="100%",
