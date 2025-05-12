@@ -418,18 +418,13 @@ class Usuario(rx.State):
 
         # Filter items based on selected item
         if self.sort_value:
-            if self.sort_value in ["nombre"]:
-                items = sorted(
-                    items,
-                    key=lambda item: float(getattr(item, self.sort_value)),
-                    reverse=self.sort_reverse,
-                )
-            else:
-                items = sorted(
-                    items,
-                    key=lambda item: str(getattr(item, self.sort_value)).lower(),
-                    reverse=self.sort_reverse,
-                )
+            if self.sort_value in ["teléfono"]:
+                self.sort_value="telefono"
+            items = sorted(
+                items,
+                key=lambda item: str(getattr(item, self.sort_value)).lower(),
+                reverse=self.sort_reverse,
+            )
 
         # Filter items based on search value
         if self.search_value:
