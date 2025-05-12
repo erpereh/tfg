@@ -1,4 +1,5 @@
 import reflex as rx
+from pythontfg.backend.calendar import crear_evento_google_calendar
 from pythontfg.backend.database_conect import Contacto
 from pythontfg.backend.database_conect import supabase
 from pythontfg.backend.config import KEY_OPEN_ROUTER, BASE_URL_OPEN_ROUTER
@@ -58,8 +59,14 @@ class ChatState(rx.State):
                 for msg in response.data
             ]
             print(f"{len(self.messages)} mensajes cargados")  # <-- Confirmación
+            ult_mensaje_recibido = next((m for m in reversed(self.messages) if not m.enviado), None)
+            if ult_mensaje_recibido:
+                print(f"+++++++++++++ Mensaje: {ult_mensaje_recibido.mensaje}")
+                self.search_event(ult_mensaje_recibido)
+                print("*************************************")
         else:
             print("No se encontraron mensajes.")
+
 
       
         
@@ -115,6 +122,68 @@ class ChatState(rx.State):
             self.messages.append(nuevo_mensaje)
             self.user_input = ""
             
+
+
+    
+    #****************************************************************************************
+    #******************* TODO ESTO ES DETECTAR EVENTO CON IA ********************************
+    #****************************************************************************************
+
+    def search_event(self, message: Mensaje):
+        history = [
+            {"role": "user", "content": message.mensaje}
+        ]
+        
+        hoy = datetime.now().strftime("%Y-%m-%d")
+
+        system_prompt = {
+            "role": "system",
+            "content": (
+                f"Hoy es {hoy}. Debes coger el contenido del mensaje, en caso de que sea un futuro evento, "
+                "localizarás el título, su fecha y hora y su duración. "
+                "El formato que debes poner será el siguiente: evento:título_evento|fecha:AAAA-MM-DDTHH:MM:SS|duracion:HH. "
+                "En caso de que no se localice un evento o una fecha, debes devolver evento:null|fecha:null|duracion:null. "
+                "En caso de que no se localice una hora concreta pero sí una fecha y evento, deberás poner: evento:título_evento|fecha:AAAA-MM-DDT00:00:00|duracion:24. "
+                "En caso de que no se localice una duración concreta, se debe estimar según el tipo de evento en horas, siendo el mínimo 1 hora. "
+            )
+        }
+
+        api_messages = [system_prompt] + history
+
+        try:
+            response = client.chat.completions.create(
+                model="deepseek/deepseek-chat-v3-0324:free",
+                messages=api_messages,
+            )
+
+            ia_text = response.choices[0].message.content.strip()
+            print("Respuesta IA:", ia_text)
+
+            # Parsear la respuesta tipo: "evento:Reunión|fecha:2025-05-11T15:00:00|duracion:1"
+            partes = ia_text.split("|")
+            evento = partes[0].split("evento:")[1].strip()
+            fecha_str = partes[1].split("fecha:")[1].strip()
+            duracion_str = partes[2].split("duracion:")[1].strip()
+
+            if evento != "null" and fecha_str != "null":
+                fecha_dt = datetime.fromisoformat(fecha_str)
+                try:
+                    duracion = float(duracion_str)
+                except ValueError:
+                    duracion = 1.0  # Valor por defecto si la IA se equivoca
+                print(f"Evento registrado: {evento}, hora evento {fecha_str}, duración: {duracion}h")
+                crear_evento_google_calendar(evento, fecha_dt, duracion)
+            else:
+                print("No se detectó ningún evento o fecha útil.")
+
+
+        except Exception as e:
+            print("Error procesando el evento:", e)
+
+    
+    #****************************************************************************************
+    #******************* TODO ESTO ES PARA GENERAR MENSAJE CON IA ***************************
+    #****************************************************************************************
 
     @rx.event(background=True)
     async def write_with_ia(self):
