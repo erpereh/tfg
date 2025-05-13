@@ -42,8 +42,6 @@ def chat_bubble(msg: Mensaje, index: int) -> rx.Component:
 
 
 
-
-
 def chat_ui():
     return rx.vstack(
         rx.cond(
@@ -64,20 +62,38 @@ def chat_ui():
             )
         ),
         rx.box(
-            rx.foreach(
-                ChatState.messages,
-                lambda msg, i: chat_bubble(msg, i)
+            rx.box(
+                # botón de recargar arriba a la derecha
+                rx.icon_button(
+                    rx.icon("refresh-cw"),
+                    on_click=ChatState.reload_messages,
+                    color_scheme="blue",
+                    variant="soft",
+                    size="2",
+                ),
+                position="absolute",
+                top="10px",
+                right="10px",
+                z_index="10",
             ),
-            overflow_y="auto",   # aparece scroll solo si excede la altura
-            height="70vh",       # fija al 70 % del viewport
+            rx.box(
+                rx.foreach(
+                    ChatState.messages,
+                    lambda msg, i: chat_bubble(msg, i)
+                ),
+                overflow_y="auto",
+                height="70vh",
+                width="100%",
+                padding="10px",
+                padding_top="50px",  # espacio extra para no tapar el botón
+                border="1px solid #444",
+                border_radius="lg",
+                bg="#1a1a1a",
+            ),
+            position="relative",  # necesario para posicionar el botón internamente
             width="100%",
-            padding="10px",
-            border="1px solid #444",
-            border_radius="lg",
-            bg="#1a1a1a",
         ),
         rx.hstack(
-            # Botón de IA
             rx.button(
                 rx.hstack(
                     rx.icon(tag="lightbulb", size=24, margin_right="1"), 
@@ -95,9 +111,9 @@ def chat_ui():
                 color="white",
                 border="1px solid #555",
                 flex="1",
-                min_rows=1,  # número mínimo de filas
-                max_rows=6,  # límite para que no crezca infinito
-                resize="none",  # evita que el usuario redimensione manualmente
+                min_rows=1,
+                max_rows=6,
+                resize="none",
             ),
             rx.button("Enviar", on_click=ChatState.send_message, bg="#8265d4", color="white"),
             width="100%",
@@ -105,6 +121,5 @@ def chat_ui():
         width="100%",
         margin="auto",
         spacing="4",
-        height="100%",               # <- asegura que el vstack crezca
+        height="100%",
     )
-

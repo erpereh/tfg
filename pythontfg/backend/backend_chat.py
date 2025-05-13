@@ -1,4 +1,5 @@
 import reflex as rx
+from pythontfg.backend.api_conect import buscar_mensajes
 from pythontfg.backend.calendar import crear_evento_google_calendar
 from pythontfg.backend.database_conect import Contacto
 from pythontfg.backend.database_conect import supabase
@@ -136,6 +137,9 @@ class ChatState(rx.State):
             self.user_input = ""
             
 
+    def reload_messages(self):
+        print("Recargando mensajes...")
+        self.messages.append(buscar_mensajes(self.selected_red_social))
 
     
     #****************************************************************************************
