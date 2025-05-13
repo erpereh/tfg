@@ -138,8 +138,10 @@ class ChatState(rx.State):
             
 
     def reload_messages(self):
-        print("Recargando mensajes...")
-        self.messages.append(buscar_mensajes(self.selected_red_social))
+        print(f"Recargando mensajes de {self.selected_red_social}...")
+        nuevos_mensajes = buscar_mensajes(self.selected_red_social)
+        self.messages.extend(nuevos_mensajes)
+
 
     
     #****************************************************************************************
