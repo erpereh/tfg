@@ -1,5 +1,5 @@
 import reflex as rx
-from pythontfg.backend.api_conect import recargar_discord, recargar_instagram, recargar_linkedin, recargar_twitter
+from pythontfg.backend.api_conect import recargar_discord, recargar_instagram, recargar_linkedin, recargar_twitter, enviar_mensaje_instagram, enviar_mensaje_discord, enviar_mensaje_linkedin, enviar_mensaje_twitter
 from pythontfg.backend.calendar import crear_evento_google_calendar
 from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
@@ -94,9 +94,6 @@ class ChatState(rx.State):
         self.selected_red_social = ""
 
 
-
-
-    
     @rx.event
     async def set_red_social(self, red_social: str):
         self.selected_red_social = red_social
@@ -109,32 +106,69 @@ class ChatState(rx.State):
 
     def is_all_selected(self) -> bool:
         return self.selected_contact_chat is not None and self.selected_red_social != ""
-
+        
+    @rx.event
     def send_message(self):
-        if self.user_input.strip():
-            now = datetime.now().isoformat()
+        if not self.user_input.strip():
+            return
 
-            nuevo_mensaje = Mensaje(
-                mensaje=self.user_input,
-                fecha_hora=now,
-                enviado=True
-            )
+        texto = self.user_input  # capturamos el texto
+        now_iso = datetime.now().isoformat()
+        nuevo_mensaje = Mensaje(mensaje=texto, fecha_hora=now_iso, enviado=True)
 
-            # Guardar en Supabase
-            supabase.from_("mensajes").insert({
-                "user_email": self.user.email,
-                "nombre_contacto": self.selected_contact_chat.nombre,
-                "mensaje": nuevo_mensaje.mensaje,
-                "fecha_hora": nuevo_mensaje.fecha_hora,
-                "enviado": nuevo_mensaje.enviado,
-                "red_social": self.selected_red_social
-            }).execute()
+        # Guardar en Supabase
+        supabase.from_("mensajes").insert({
+            "user_email": self.user.email,
+            "nombre_contacto": self.selected_contact_chat.nombre,
+            "mensaje": nuevo_mensaje.mensaje,
+            "fecha_hora": nuevo_mensaje.fecha_hora,
+            "enviado": True,
+            "red_social": self.selected_red_social
+        }).execute()
 
-            nuevo_mensaje.fecha_hora = datetime.fromisoformat(nuevo_mensaje.fecha_hora).strftime("%H:%M")
-            # Actualizar en el frontend
-            self.messages.append(nuevo_mensaje)
-            self.user_input = ""
+        # Enviar en background, pasándole el texto
+        asyncio.create_task(self.send_message_to_red_social(texto))
 
+        # Append y limpiar input
+        nuevo_mensaje.fecha_hora = datetime.fromisoformat(nuevo_mensaje.fecha_hora).strftime("%H:%M")
+        self.messages.append(nuevo_mensaje)
+        self.user_input = ""
+
+    async def send_message_to_red_social(self, texto: str):
+        print(f"Enviando mensaje a {self.selected_red_social}: {texto!r}")
+        match self.selected_red_social:
+            case "discord":
+                usuario_id = 460702684094136320  # ID del usuario de Discord
+                # Ejecuta el wrapper síncrono en un thread con el texto correcto
+                await asyncio.to_thread(
+                    enviar_mensaje_discord,
+                    self.user.discord_pass,
+                    usuario_id,
+                    texto,
+                )
+            case "instagram":
+                await asyncio.to_thread(
+                    enviar_mensaje_instagram,
+                    self.user.instagram_usr,
+                    texto,
+                    self.selected_contact_chat.instagram
+                )
+            case "twitter":
+                await asyncio.to_thread(
+                    enviar_mensaje_twitter,
+                    self.user.twitter_usr,
+                    texto,
+                    self.selected_contact_chat.twitter
+                )
+            case "linkedin":
+                await asyncio.to_thread(
+                    enviar_mensaje_linkedin,
+                    self.user.linkedin_usr,
+                    texto,
+                    self.selected_contact_chat.linkedin
+                )
+            case _:
+                print("Red social no reconocida.")
     
     @rx.event
     async def reload_messages(self):
@@ -154,7 +188,6 @@ class ChatState(rx.State):
                 #ESTO HAY Q CAMBIARLO
                 usuario_id = 460702684094136320
                 
-                # <-- Aquí usamos directamente await sobre la versión async
                 try:
                     # Función síncrona, pero corre su event loop interno
                     nuevos_mensajes = await asyncio.to_thread(
