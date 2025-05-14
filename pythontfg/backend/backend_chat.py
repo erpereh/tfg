@@ -3,6 +3,7 @@ from pythontfg.backend.api_conect import recargar_facebook, recargar_instagram, 
 from pythontfg.backend.calendar import crear_evento_google_calendar
 from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
+from pythontfg.backend.usuario_ligero import UsuarioLigero  # si lo metes en archivo aparte
 from pythontfg.backend.database_conect import supabase
 from pythontfg.backend.config import KEY_OPEN_ROUTER, BASE_URL_OPEN_ROUTER
 from typing import List, Optional
@@ -17,7 +18,9 @@ client = OpenAI(
 
 class ChatState(rx.State):
     
-    user_email: str =""
+    user: Optional[UsuarioLigero] = None
+
+
     selected_contact_chat: Optional[Contacto] = None
     selected_red_social: str = ""
     
@@ -26,10 +29,15 @@ class ChatState(rx.State):
     messages: List[Mensaje] = []
 
     is_generating_ia: bool = False
+
+    @rx.event
+    def cargar_usuario(self, datos: dict):
+        self.user = UsuarioLigero(**datos)
+        print(f"Usuario cargado en ChatState: {self.user.email}")
+
     
     @rx.event
-    async def seleccionar_contacto_chat(self, contacto: Contacto, user_email: str):
-        self.user_email = user_email
+    async def seleccionar_contacto_chat(self, contacto: Contacto):
         self.selected_contact_chat = contacto
         print(f"Contacto seleccionado: {self.selected_contact_chat.nombre}")
         return type(self).seleccionar_red_social_disponible()
@@ -41,7 +49,7 @@ class ChatState(rx.State):
             supabase
             .from_("mensajes")
             .select("*")
-            .eq("user_email", self.user_email)
+            .eq("user_email", self.user)
             .eq("nombre_contacto", self.selected_contact_chat.nombre)
             .eq("red_social", self.selected_red_social)
             .order("fecha_hora", desc=False)
@@ -111,7 +119,7 @@ class ChatState(rx.State):
 
             # Guardar en Supabase
             supabase.from_("mensajes").insert({
-                "user_email": self.user_email,
+                "user_email": self.user.email,
                 "nombre_contacto": self.selected_contact_chat.nombre,
                 "mensaje": nuevo_mensaje.mensaje,
                 "fecha_hora": nuevo_mensaje.fecha_hora,
@@ -124,12 +132,18 @@ class ChatState(rx.State):
             self.messages.append(nuevo_mensaje)
             self.user_input = ""
             
-
-    def reload_messages(self):
+    @rx.event
+    async def reload_messages(self):
         print(f"Recargando mensajes de {self.selected_red_social}...")
+
+
         match self.selected_red_social:
             case "instagram":
-                nuevos_mensajes = recargar_instagram(self.selected_contact_chat.instagram)
+                nuevos_mensajes = recargar_instagram(
+                    self.user.instagram_usr,
+                    self.user.instagram_pass,
+                    self.selected_contact_chat.instagram
+                )
             case "twitter":
                 nuevos_mensajes = recargar_twitter(self.selected_contact_chat.twitter)
             case "facebook":
@@ -138,8 +152,12 @@ class ChatState(rx.State):
                 nuevos_mensajes = recargar_linkedin(self.selected_contact_chat.linkedin)
             case _:
                 print("Red social no reconocida.")
+                nuevos_mensajes = []
 
         self.messages.extend(nuevos_mensajes)
+
+
+
 
 
     

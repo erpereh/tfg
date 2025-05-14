@@ -5,11 +5,13 @@ from pythontfg.backend.mensaje import Mensaje
 
 #cliente login para instagram
 cl = Client()
-cl.login("davidjulio_tfg", "Davidjulio123")
 
-def recargar_instagram(usuario:str, cantidad=2) -> list:
+def recargar_instagram(usr:str, contrasena:str, usuario_contacto:str, cantidad=2) -> list:
+    print(f"usuario instagram: {usr}, contraseña {contrasena}")
+    cl.login(usr, contrasena)
+
     # 1) ID del usuario con quien chateas
-    target_id = cl.user_id_from_username(usuario)
+    target_id = cl.user_id_from_username(usuario_contacto)
     
     # 2) Obtén el dict bruto del hilo
     raw = cl.direct_thread_by_participants([target_id])
@@ -27,18 +29,18 @@ def recargar_instagram(usuario:str, cantidad=2) -> list:
         if msg["user_id"] == mi_id:
             print(f"Tú: {text}")
         else:
-            print(f"{usuario}: {text}")
+            print(f"{usuario_contacto}: {text}")
     return []
 
-def recargar_twitter(usuario:str) -> list:
+def recargar_twitter(usr:str, contrasena:str, usuario_contacto:str) -> list:
     print("Recargando mensajes de Twitter...")
     return []
 
-def recargar_facebook(usuario:str) -> list:
+def recargar_facebook(usr:str, contrasena:str, usuario_contacto:str) -> list:
     print("Recargando mensajes de Facebook...")
     return []
 
-def recargar_linkedin(usuario:str) -> list:
+def recargar_linkedin(usr:str, contrasena:str, usuario_contacto:str) -> list:
     print("Recargando mensajes de LinkedIn...")
     return []
 

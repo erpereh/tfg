@@ -248,7 +248,23 @@ class Usuario(rx.State):
         print(self.contactos)
         
         
-        
+    @rx.event
+    def enviar_datos_chat(self):
+        from pythontfg.backend.backend_chat import ChatState
+        datos = {
+            "instagram_usr": self.instagram_usr,
+            "instagram_pass": self.instagram_pass,
+            "facebook_usr": self.facebook_usr,
+            "facebook_pass": self.facebook_pass,
+            "twitter_usr": self.twitter_usr,
+            "twitter_pass": self.twitter_pass,
+            "linkedin_usr": self.linkedin_usr,
+            "linkedin_pass": self.linkedin_pass,
+            "email": self.email
+        }
+        return ChatState.cargar_usuario(datos)
+
+
     
     #****************************************************************************************
     #******************* TODO ESTO ES PARA EL CREAR CONTACTOS *******************************
