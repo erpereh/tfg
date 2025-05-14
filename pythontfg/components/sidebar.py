@@ -152,7 +152,7 @@ def sidebar() -> rx.Component:
         ),
     )
 
-    return rx.flex(
+    return rx.box(
         rx.vstack(
             sidebar_header(),
             rx.vstack(
@@ -162,7 +162,7 @@ def sidebar() -> rx.Component:
                         url=page["route"],
                     )
                     for page in ordered_pages
-                    if page["route"] not in ["/", "/registrarse"]  # filtramos la ruta principal, que es el login para que no aparezca en el menu y el de registro
+                    if page["route"] not in ["/", "/registrarse"]
                 ],
                 spacing="1",
                 width="100%",
@@ -176,13 +176,12 @@ def sidebar() -> rx.Component:
             padding="1em",
         ),
         display=["none", "none", "none", "none", "none", "flex"],
+        width=styles.sidebar_width,  # <- forzamos ancho fijo
         max_width=styles.sidebar_width,
-        width="auto",
         height="100%",
         position="sticky",
-        justify="end",
         top="0px",
         left="0px",
-        flex="1",
         bg=rx.color("gray", 2),
     )
+
