@@ -31,7 +31,7 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
         rx.table.cell(item.email),
         rx.table.cell(item.telefono),
         rx.table.cell(item.instagram),
-        rx.table.cell(item.facebook),
+        rx.table.cell(item.discord),
         rx.table.cell(item.twitter),
         rx.table.cell(item.linkedin),
         rx.table.cell(
@@ -74,9 +74,9 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
                                     on_change=Usuario.set_nuevo_instagram,
                                 ),
                                 rx.input(
-                                    placeholder="Facebook",
-                                    value=item.facebook,
-                                    on_change=Usuario.set_nuevo_facebook,
+                                    placeholder="Discord",
+                                    value=item.discord,
+                                    on_change=Usuario.set_nuevo_discord,
                                 ),
                                 rx.input(
                                     placeholder="Twitter",
@@ -216,7 +216,7 @@ def main_table() -> rx.Component:
                         "email",
                         "teléfono",
                         "instagram",
-                        "facebook",
+                        "discord",
                         "twitter",
                         "linkedin",
                     ],
@@ -288,9 +288,9 @@ def main_table() -> rx.Component:
                                     on_change=Usuario.set_nuevo_instagram,
                                 ),
                                 rx.input(
-                                    placeholder="Facebook",
-                                    value=Usuario.nuevo_facebook,
-                                    on_change=Usuario.set_nuevo_facebook,
+                                    placeholder="Discord",
+                                    value=Usuario.nuevo_discord,
+                                    on_change=Usuario.set_nuevo_discord,
                                 ),
                                 rx.input(
                                     placeholder="Twitter",
@@ -342,7 +342,7 @@ def main_table() -> rx.Component:
                     _header_cell("Email", "mail"),
                     _header_cell("Teléfono", "phone"),
                     _header_cell("Instagram", "instagram"),
-                    _header_cell("Facebook", "facebook"),
+                    _header_cell("Discord", "message-circle-heart"),
                     _header_cell("Twitter", "twitter"),
                     _header_cell("Linkedin", "linkedin"),
                     _header_cell("Modificar", "chart-candlestick"),

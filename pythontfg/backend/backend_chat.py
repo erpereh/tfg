@@ -1,5 +1,5 @@
 import reflex as rx
-from pythontfg.backend.api_conect import recargar_facebook, recargar_instagram, recargar_linkedin, recargar_twitter
+from pythontfg.backend.api_conect import recargar_discord, recargar_instagram, recargar_linkedin, recargar_twitter
 from pythontfg.backend.calendar import crear_evento_google_calendar
 from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
@@ -9,6 +9,9 @@ from pythontfg.backend.config import KEY_OPEN_ROUTER, BASE_URL_OPEN_ROUTER
 from typing import List, Optional
 from datetime import datetime
 from openai import OpenAI
+from pythontfg.backend.config import DS_TOKEN
+
+import asyncio
 
 client = OpenAI(
   base_url=BASE_URL_OPEN_ROUTER,
@@ -81,7 +84,7 @@ class ChatState(rx.State):
     async def seleccionar_red_social_disponible(self):
         redes = {
             "instagram": self.selected_contact_chat.instagram,
-            "facebook": self.selected_contact_chat.facebook,
+            "discord": self.selected_contact_chat.discord,
             "twitter": self.selected_contact_chat.twitter,
             "linkedin": self.selected_contact_chat.linkedin,
         }
@@ -131,7 +134,8 @@ class ChatState(rx.State):
             # Actualizar en el frontend
             self.messages.append(nuevo_mensaje)
             self.user_input = ""
-            
+
+    
     @rx.event
     async def reload_messages(self):
         print(f"Recargando mensajes de {self.selected_red_social}...")
@@ -146,8 +150,22 @@ class ChatState(rx.State):
                 )
             case "twitter":
                 nuevos_mensajes = recargar_twitter(self.selected_contact_chat.twitter)
-            case "facebook":
-                nuevos_mensajes = recargar_facebook(self.selected_contact_chat.facebook)
+            case "discord":
+                #ESTO HAY Q CAMBIARLO
+                usuario_id = 460702684094136320
+                
+                # <-- Aquí usamos directamente await sobre la versión async
+                try:
+                    # Función síncrona, pero corre su event loop interno
+                    nuevos_mensajes = await asyncio.to_thread(
+                        recargar_discord,
+                        self.user.discord_pass,
+                        usuario_id,
+                        20
+                    )
+                except Exception as e:
+                    print("Error al recargar Discord:", e)
+                    nuevos_mensajes = []
             case "linkedin":
                 nuevos_mensajes = recargar_linkedin(self.selected_contact_chat.linkedin)
             case _:

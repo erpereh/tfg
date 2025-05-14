@@ -42,7 +42,7 @@ def profile() -> rx.Component:
             # Columna derecha: redes sociales
             rx.vstack(
                 _social_group("Instagram", Usuario.instagram_usr, Usuario.instagram_pass, "instagram"),
-                _social_group("Facebook", Usuario.facebook_usr, Usuario.facebook_pass, "facebook"),
+                _social_group("Discord", Usuario.discord_usr, Usuario.discord_pass, "discord"),
                 _social_group("Twitter", Usuario.twitter_usr, Usuario.twitter_pass, "twitter"),
                 _social_group("LinkedIn", Usuario.linkedin_usr, Usuario.linkedin_pass, "linkedin"),
                 spacing="4",

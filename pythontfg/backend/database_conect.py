@@ -18,7 +18,7 @@ class Contacto(rx.Base):
     email: str = ""
     telefono: str = ""
     instagram: str = ""
-    facebook: str = ""
+    discord: str = ""
     twitter: str = ""
     linkedin: str = ""
 
@@ -37,8 +37,8 @@ class Usuario(rx.State):
     
     instagram_usr: str = ""
     instagram_pass: str = ""
-    facebook_usr: str = ""
-    facebook_pass: str = ""
+    discord_usr: str = ""
+    discord_pass: str = ""
     telefono: str = ""
     twitter_usr: str = ""
     twitter_pass: str = ""
@@ -166,8 +166,8 @@ class Usuario(rx.State):
 
         self.instagram_usr = datos.get("instagram_usr", "")
         self.instagram_pass = datos.get("instagram_pass", "")
-        self.facebook_usr = datos.get("facebook_usr", "")
-        self.facebook_pass = datos.get("facebook_pass", "")
+        self.discord_usr = datos.get("discord_urs", "")
+        self.discord_pass = datos.get("discord_pass", "")
         self.telefono = datos.get("telefono", "0")
         self.twitter_usr = datos.get("twitter_usr", "")
         self.twitter_pass = datos.get("twitter_pass", "")
@@ -180,7 +180,7 @@ class Usuario(rx.State):
         print(f"Email: {self.email}")
         print(f"Password: {self.password}")
         print(f"Instagram: {self.instagram_usr} / {self.instagram_pass}")
-        print(f"Facebook: {self.facebook_usr} / {self.facebook_pass}")
+        print(f"Discord: {self.discord_usr} / {self.discord_pass}")
         print(f"Teléfono: {self.telefono}")
         print(f"Twitter: {self.twitter_usr} / {self.twitter_pass}")
         print(f"LinkedIn: {self.linkedin_usr} / {self.linkedin_pass}")
@@ -195,8 +195,8 @@ class Usuario(rx.State):
         self.telefono = form_data.get("telefono", self.telefono)
         self.instagram_usr = form_data.get("instagram_usr", self.instagram_usr)
         self.instagram_pass = form_data.get("instagram_pass", self.instagram_pass)
-        self.facebook_usr = form_data.get("facebook_usr", self.facebook_usr)
-        self.facebook_pass = form_data.get("facebook_pass", self.facebook_pass)
+        self.discord_usr = form_data.get("discord_usr", self.discord_usr)
+        self.discord_pass = form_data.get("discord_pass", self.discord_pass)
         self.twitter_usr = form_data.get("twitter_usr", self.twitter_usr)
         self.twitter_pass = form_data.get("twitter_pass", self.twitter_pass)
         self.linkedin_usr = form_data.get("linkedin_usr", self.linkedin_usr)
@@ -209,14 +209,14 @@ class Usuario(rx.State):
             "telefono": self.telefono,
             "instagram_usr": self.instagram_usr,
             "instagram_pass": self.instagram_pass,
-            "facebook_usr": self.facebook_usr,
-            "facebook_pass": self.facebook_pass,
+            "discord_usr": self.discord_usr,
+            "discord_pass": self.discord_pass,
             "twitter_usr": self.twitter_usr,
             "twitter_pass": self.twitter_pass,
             "linkedin_usr": self.linkedin_usr,
             "linkedin_pass": self.linkedin_pass,
         }).eq("email", self.email).execute()
-
+    
         return rx.toast.success("Cambios guardados correctamente", position="top-center")
 
     def cargar_contactos(self):
@@ -235,7 +235,7 @@ class Usuario(rx.State):
                 email=contacto_data.get("email", ""),
                 telefono=contacto_data.get("telefono", ""),
                 instagram=contacto_data.get("instagram", ""),
-                facebook=contacto_data.get("facebook", ""),
+                discord=contacto_data.get("discord", ""),
                 twitter=contacto_data.get("twitter", ""),
                 linkedin=contacto_data.get("linkedin", "")
             )
@@ -254,8 +254,8 @@ class Usuario(rx.State):
         datos = {
             "instagram_usr": self.instagram_usr,
             "instagram_pass": self.instagram_pass,
-            "facebook_usr": self.facebook_usr,
-            "facebook_pass": self.facebook_pass,
+            "discord_usr": self.discord_usr,
+            "discord_pass": self.discord_pass,
             "twitter_usr": self.twitter_usr,
             "twitter_pass": self.twitter_pass,
             "linkedin_usr": self.linkedin_usr,
@@ -276,7 +276,7 @@ class Usuario(rx.State):
     nuevo_email: str = ""
     nuevo_telefono: str = ""
     nuevo_instagram: str = ""
-    nuevo_facebook: str = ""
+    nuevo_discord: str = ""
     nuevo_twitter: str = ""
     nuevo_linkedin: str = ""
     
@@ -295,7 +295,7 @@ class Usuario(rx.State):
             email=self.nuevo_email,
             telefono=self.nuevo_telefono,
             instagram=self.nuevo_instagram,
-            facebook=self.nuevo_facebook,
+            discord=self.nuevo_discord,
             twitter=self.nuevo_twitter,
             linkedin=self.nuevo_linkedin,
         )
@@ -320,7 +320,7 @@ class Usuario(rx.State):
             "email": self.nuevo_email,  # Email del contacto
             "telefono": self.nuevo_telefono,
             "instagram": self.nuevo_instagram,
-            "facebook": self.nuevo_facebook,
+            "discord": self.nuevo_discord,
             "twitter": self.nuevo_twitter,
             "linkedin": self.nuevo_linkedin,
             "user_email": self.email  # Email del usuario autenticado
@@ -331,7 +331,7 @@ class Usuario(rx.State):
         self.nuevo_email = ""
         self.nuevo_telefono = ""
         self.nuevo_instagram = ""
-        self.nuevo_facebook = ""
+        self.nuevo_discord = ""
         self.nuevo_twitter = ""
         self.nuevo_linkedin = ""
         
@@ -347,7 +347,7 @@ class Usuario(rx.State):
                     "email": self.nuevo_email,
                     "telefono": self.nuevo_telefono,
                     "instagram": self.nuevo_instagram,
-                    "facebook": self.nuevo_facebook,
+                    "discord": self.nuevo_discord,
                     "twitter": self.nuevo_twitter,
                     "linkedin": self.nuevo_linkedin,
                 })\
@@ -360,7 +360,7 @@ class Usuario(rx.State):
         self.nuevo_email = ""
         self.nuevo_telefono = ""
         self.nuevo_instagram = ""
-        self.nuevo_facebook = ""
+        self.nuevo_discord = ""
         self.nuevo_twitter = ""
         self.nuevo_linkedin = ""
         
@@ -371,7 +371,7 @@ class Usuario(rx.State):
             email=self.nuevo_email,
             telefono=self.nuevo_telefono,
             instagram=self.nuevo_instagram,
-            facebook=self.nuevo_facebook,
+            discord=self.nuevo_discord,
             twitter=self.nuevo_twitter,
             linkedin=self.nuevo_linkedin,
         ))
@@ -391,7 +391,7 @@ class Usuario(rx.State):
         self.nuevo_email = contacto.email
         self.nuevo_telefono = contacto.telefono or ""
         self.nuevo_instagram = contacto.instagram or ""
-        self.nuevo_facebook = contacto.facebook or ""
+        self.nuevo_discord = contacto.discord or ""
         self.nuevo_twitter = contacto.twitter or ""
         self.nuevo_linkedin = contacto.linkedin or ""
 
@@ -454,7 +454,7 @@ class Usuario(rx.State):
                 item for item in items
                 if any(
                     search_value in str(getattr(item, attr)).lower()
-                    for attr in ["nombre", "email", "telefono", "instagram", "facebook", "twitter", "linkedin"]
+                    for attr in ["nombre", "email", "telefono", "instagram", "discord", "twitter", "linkedin"]
                 )
             ]
 
@@ -515,14 +515,14 @@ class Usuario(rx.State):
 
         with file_path.open(mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Nombre", "Email", "Teléfono", "Instagram", "Facebook", "Twitter", "LinkedIn"])
+            writer.writerow(["Nombre", "Email", "Teléfono", "Instagram", "discord", "Twitter", "LinkedIn"])
             for contacto in self.contactos:
                 writer.writerow([
                     contacto.nombre,
                     contacto.email,
                     contacto.telefono,
                     contacto.instagram,
-                    contacto.facebook,
+                    contacto.discord,
                     contacto.twitter,
                     contacto.linkedin,
                 ])

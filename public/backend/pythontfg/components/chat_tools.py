@@ -18,7 +18,7 @@ def social_buttons() -> rx.Component:
                 rx.fragment()
             ),
             rx.cond(
-                ChatState.selected_contact_chat.facebook,
+                ChatState.selected_contact_chat.discord,
                 button_redes(
                     "facebook", "facebook", "#3b5998", "#8b9dc3",
                     on_click=ChatState.set_red_social("facebook")

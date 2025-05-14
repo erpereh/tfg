@@ -67,7 +67,7 @@ class ChatState(rx.State):
     def seleccionar_red_social_disponible(self):
         redes = {
             "instagram": self.selected_contact_chat.instagram,
-            "facebook": self.selected_contact_chat.facebook,
+            "facebook": self.selected_contact_chat.discord,
             "twitter": self.selected_contact_chat.twitter,
             "linkedin": self.selected_contact_chat.linkedin,
         }

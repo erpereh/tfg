@@ -31,7 +31,7 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
         rx.table.cell(item.email),
         rx.table.cell(item.telefono),
         rx.table.cell(item.instagram),
-        rx.table.cell(item.facebook),
+        rx.table.cell(item.discord),
         rx.table.cell(item.twitter),
         rx.table.cell(item.linkedin),
         rx.table.cell(
@@ -75,7 +75,7 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
                                 ),
                                 rx.input(
                                     placeholder="Facebook",
-                                    value=item.facebook,
+                                    value=item.discord,
                                     on_change=Usuario.set_nuevo_facebook,
                                 ),
                                 rx.input(
@@ -289,7 +289,7 @@ def main_table() -> rx.Component:
                                 ),
                                 rx.input(
                                     placeholder="Facebook",
-                                    value=Usuario.nuevo_facebook,
+                                    value=Usuario.nuevo_discord,
                                     on_change=Usuario.set_nuevo_facebook,
                                 ),
                                 rx.input(

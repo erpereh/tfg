@@ -4,8 +4,8 @@ from dataclasses import dataclass
 class UsuarioLigero:
     instagram_usr: str
     instagram_pass: str
-    facebook_usr: str
-    facebook_pass: str
+    discord_usr: str
+    discord_pass: str
     twitter_usr: str
     twitter_pass: str
     linkedin_usr: str

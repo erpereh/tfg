@@ -2,6 +2,7 @@
 from instagrapi import Client
 
 from pythontfg.backend.mensaje import Mensaje
+import discord
 
 #cliente login para instagram
 cl = Client()
@@ -66,8 +67,8 @@ def recargar_twitter(usr:str, contrasena:str, usuario_contacto:str) -> list:
     print("Recargando mensajes de Twitter...")
     return []
 
-def recargar_facebook(usr:str, contrasena:str, usuario_contacto:str) -> list:
-    print("Recargando mensajes de Facebook...")
+def recargar_discord(usr:str, contrasena:str, usuario_contacto:str) -> list:
+    print("Recargando mensajes de Discord...")
     return []
 
 def recargar_linkedin(usr:str, contrasena:str, usuario_contacto:str) -> list:
@@ -87,3 +88,64 @@ def ver():
     target_id = cl.user_id_from_username("d.pereezz_")
     thread = cl.direct_thread_by_participants([target_id])
     print(thread["thread"].keys())
+    
+
+import discord
+import asyncio
+from datetime import datetime
+from discord.errors import Forbidden
+from discord.http import Route
+from pythontfg.backend.mensaje import Mensaje
+
+class DiscordSelfBot(discord.Client):
+    def __init__(self, token: str, target_id: int, limit: int = 50):
+        super().__init__(self_bot=True)
+        self.token = token
+        self.target_id = target_id
+        self.limit = limit
+        self.history: list[Mensaje] = []
+
+    async def setup_hook(self):
+        self.loop.create_task(self.main())
+
+    async def on_ready(self):
+        print(f"[✓] Conectado como {self.user} (ID: {self.user.id})")
+
+    async def _get_dm_channel(self, user_id: int):
+        try:
+            user = await self.fetch_user(user_id)
+            return user.dm_channel or await user.create_dm()
+        except Forbidden:
+            payload = {"recipient_id": str(user_id)}
+            data = await self.http.request(Route("POST", "/users/@me/channels"), json=payload)
+            channel_id = int(data["id"])
+            return await self.fetch_channel(channel_id)
+
+    async def read_conversation(self) -> list[Mensaje]:
+        dm = await self._get_dm_channel(self.target_id)
+        historial: list[Mensaje] = []
+        async for msg in dm.history(limit=self.limit):
+            texto = msg.content or "<media/sin texto>"
+            hora = msg.created_at.strftime("%H:%M")
+            enviado = (msg.author.id == self.user.id)
+            # instantiate with keywords
+            historial.append(
+                Mensaje(mensaje=texto, fecha_hora=hora, enviado=enviado)
+            )
+        return historial
+
+    async def main(self):
+        await self.wait_until_ready()
+        self.history = await self.read_conversation()
+        await self.close()
+
+    def run_and_fetch(self) -> list[Mensaje]:
+        super().run(self.token)
+        return self.history
+
+def recargar_discord(token: str, usuario_id: int, cantidad: int = 20) -> list[Mensaje]:
+    print(f"🔄 Recargando mensajes de Discord de usuario {usuario_id}…")
+    bot = DiscordSelfBot(token, target_id=usuario_id, limit=cantidad)
+    mensajes = bot.run_and_fetch()
+    print(f"✅ Se obtuvieron {len(mensajes)} mensajes de Discord.")
+    return mensajes
