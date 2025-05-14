@@ -1,6 +1,7 @@
 import reflex as rx
-from pythontfg.backend.api_conect import buscar_mensajes
+from pythontfg.backend.api_conect import recargar_facebook, recargar_instagram, recargar_linkedin, recargar_twitter
 from pythontfg.backend.calendar import crear_evento_google_calendar
+from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
 from pythontfg.backend.database_conect import supabase
 from pythontfg.backend.config import KEY_OPEN_ROUTER, BASE_URL_OPEN_ROUTER
@@ -12,19 +13,6 @@ client = OpenAI(
   base_url=BASE_URL_OPEN_ROUTER,
   api_key=KEY_OPEN_ROUTER,
 )
-
-class Mensaje(rx.Base):
-    mensaje: str = ""
-    fecha_hora: str = ""
-    enviado: bool = False
-
-    # creación eventos en Calendar
-    evento_localizado: bool = False
-    evento: str = ""
-    fecha_dt: datetime = datetime.now()  # ← esto sí es válido
-    duracion: float = 1.0
-    def crear_evento_mensaje(self):
-        crear_evento_google_calendar(self.evento, self.fecha_dt, self.duracion)
 
 
 class ChatState(rx.State):
@@ -139,7 +127,18 @@ class ChatState(rx.State):
 
     def reload_messages(self):
         print(f"Recargando mensajes de {self.selected_red_social}...")
-        nuevos_mensajes = buscar_mensajes(self.selected_red_social)
+        match self.selected_red_social:
+            case "instagram":
+                nuevos_mensajes = recargar_instagram(self.selected_contact_chat.instagram)
+            case "twitter":
+                nuevos_mensajes = recargar_twitter(self.selected_contact_chat.twitter)
+            case "facebook":
+                nuevos_mensajes = recargar_facebook(self.selected_contact_chat.facebook)
+            case "linkedin":
+                nuevos_mensajes = recargar_linkedin(self.selected_contact_chat.linkedin)
+            case _:
+                print("Red social no reconocida.")
+
         self.messages.extend(nuevos_mensajes)
 
 
@@ -169,6 +168,7 @@ class ChatState(rx.State):
                 "En caso de que no se localice un evento o una fecha, debes devolver evento:null|fecha:null|duracion:null. "
                 "En caso de que no se localice una hora concreta pero sí una fecha y evento, deberás poner: evento:título_evento|fecha:AAAA-MM-DDT00:00:00|duracion:24. "
                 "En caso de que no se localice una duración concreta, se debe estimar según el tipo de evento en horas, siendo el mínimo 1 hora."
+                "El formato de tu respuesta debe ser claro, sin añadir comentarios ni otros formatos, un ejemplo sería: evento:Reunión con Juan y Luis|fecha:2025-05-15T17:00:00|duracion:01"
             )
         }
 
