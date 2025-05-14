@@ -9,7 +9,7 @@ def chat_bubble(msg: Mensaje, index: int) -> rx.Component:
         rx.box(
             rx.vstack(
                 rx.hstack(
-                    rx.text(msg.mensaje, color="white", flex="1"),
+                    rx.text(msg.mensaje, color="white", flex="1",word_break="break-word"),
                     rx.text(msg.fecha_hora, font_size="0.8em", color="white", margin_left="10px"),
                     justify="between",
                     width="100%",
@@ -61,37 +61,30 @@ def chat_ui():
                 z_index="100",
             )
         ),
-        rx.box(
-            rx.box(
-                # botón de recargar arriba a la derecha
-                rx.icon_button(
-                    rx.icon("refresh-cw"),
-                    on_click=ChatState.reload_messages,
-                    color_scheme="blue",
-                    variant="soft",
-                    size="2",
-                ),
-                position="absolute",
-                top="10px",
-                right="10px",
-                z_index="10",
+        # Botón justo encima de la caja de mensajes
+        rx.hstack(
+            rx.spacer(),  # empuja el botón a la derecha
+            rx.icon_button(
+                rx.icon("refresh-cw"),
+                on_click=ChatState.reload_messages,
+                color_scheme="blue",
+                variant="soft",
+                size="2",
             ),
-            rx.box(
-                rx.foreach(
-                    ChatState.messages,
-                    lambda msg, i: chat_bubble(msg, i)
-                ),
-                overflow_y="auto",
-                height="70vh",
-                width="100%",
-                padding="10px",
-                padding_top="50px",  # espacio extra para no tapar el botón
-                border="1px solid #444",
-                border_radius="lg",
-                bg="#1a1a1a",
-            ),
-            position="relative",  # necesario para posicionar el botón internamente
             width="100%",
+        ),
+        rx.box(
+            rx.foreach(
+                ChatState.messages,
+                lambda msg, i: chat_bubble(msg, i)
+            ),
+            overflow_y="auto",
+            height="70vh",
+            width="100%",
+            padding="10px",
+            border="1px solid #444",
+            border_radius="lg",
+            bg="#1a1a1a",
         ),
         rx.hstack(
             rx.button(

@@ -408,7 +408,7 @@ class Usuario(rx.State):
     sort_reverse: bool = False
 
     offset: int = 0
-    limit: int = 10  # Número de filas por página
+    limit: int = 3  # Número de filas por página
 
     @rx.event
     def load_entries(self):
@@ -456,9 +456,10 @@ class Usuario(rx.State):
     @rx.var(initial_value=[])
     def get_current_page(self) -> list[Contacto]:
         items = self.filtered_sorted_items
-        start_index = min(self.offset, max(len(items) - self.limit, 0))
-        end_index = start_index + self.limit
+        start_index = self.offset
+        end_index = self.offset + self.limit
         return items[start_index:end_index]
+
 
     def prev_page(self):
         if self.page_number > 1:
