@@ -2,7 +2,14 @@
 from instagrapi import Client
 
 from pythontfg.backend.mensaje import Mensaje
+
+#discord
 import discord
+from datetime import datetime
+from discord.errors import Forbidden
+from discord.http import Route
+from pythontfg.backend.mensaje import Mensaje
+import asyncio
 
 #cliente login para instagram
 cl = Client()
@@ -94,11 +101,6 @@ def ver():
     print(thread["thread"].keys())
     
 
-import discord
-from datetime import datetime
-from discord.errors import Forbidden
-from discord.http import Route
-from pythontfg.backend.mensaje import Mensaje
 
 class DiscordSelfBot(discord.Client):
     def __init__(self, token: str, target_id: int, limit: int = 50):
@@ -161,12 +163,7 @@ def enviar_mensaje_discord(usuario_id: int, mensaje: str, token: str):
 
 
 
-# — api_conect.py —
 
-import discord
-import asyncio
-from discord.errors import Forbidden
-from discord.http import Route
 
 class DiscordSelfBotSender(discord.Client):
     def __init__(self, token: str, target_id: int, message: str):

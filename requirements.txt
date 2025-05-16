@@ -1,3 +1,4 @@
 reflex>=0.7.10.post1
 supabase>=1.0.0
 openai>=0.27.0
+discord.py-self
