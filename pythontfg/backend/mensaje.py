@@ -1,6 +1,6 @@
 import reflex as rx
 from datetime import datetime
-from pythontfg.backend.calendar import crear_evento_google_calendar
+from pythontfg.backend.social_apis.calendar import crear_evento_google_calendar
 
 class Mensaje(rx.Base):
     mensaje: str = ""

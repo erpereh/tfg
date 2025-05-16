@@ -1,6 +1,9 @@
+from pythontfg.backend.social_apis.discord import enviar_mensaje_discord, recargar_discord
+from pythontfg.backend.social_apis.instagram import enviar_mensaje_instagram, recargar_instagram
+from pythontfg.backend.social_apis.linkedin import enviar_mensaje_linkedin, recargar_linkedin
+from pythontfg.backend.social_apis.twitter import enviar_mensaje_twitter, recargar_twitter
 import reflex as rx
-from pythontfg.backend.api_conect import recargar_discord, recargar_instagram, recargar_linkedin, recargar_twitter, enviar_mensaje_instagram, enviar_mensaje_discord, enviar_mensaje_linkedin, enviar_mensaje_twitter
-from pythontfg.backend.calendar import crear_evento_google_calendar
+from pythontfg.backend.social_apis.calendar import crear_evento_google_calendar
 from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
 from pythontfg.backend.usuario_ligero import UsuarioLigero  # si lo metes en archivo aparte
@@ -205,8 +208,30 @@ class ChatState(rx.State):
                 print("Red social no reconocida.")
                 nuevos_mensajes = []
 
-        self.messages.extend(nuevos_mensajes)
+        mensajes_comprobados = self.comprobarRepetidos(nuevos_mensajes)
+        self.messages.extend(mensajes_comprobados)
+        self.add_mensajes_comprobados_to_supabase(mensajes_comprobados)
+        
+    def comprobarRepetidos(self, mensajes: list[Mensaje]) -> list[Mensaje]:
+        mensajes_filtrados = []
 
+        for m in mensajes:
+            if all(m.mensaje != m_g.mensaje for m_g in self.messages):
+                mensajes_filtrados.append(m)
+
+        return mensajes_filtrados
+
+
+    def add_mensajes_comprobados_to_supabase(self, mensajes: list[Mensaje]):
+        for m in mensajes:
+            supabase.from_("mensajes").insert({
+                "user_email": self.user.email,
+                "nombre_contacto": self.selected_contact_chat.nombre,
+                "mensaje": m.mensaje,
+                "fecha_hora": m.fecha_hora,
+                "enviado": m.enviado,
+                "red_social": self.selected_red_social
+            }).execute()
 
 
 
