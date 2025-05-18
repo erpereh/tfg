@@ -5,6 +5,7 @@ from pythontfg.backend.social_apis.calendar import crear_evento_google_calendar
 class Mensaje(rx.Base):
     mensaje: str = ""
     fecha_hora: str = ""
+    hora_formato_chat: str = ""
     enviado: bool = False
 
     # creación eventos en Calendar

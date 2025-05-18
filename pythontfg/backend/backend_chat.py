@@ -55,7 +55,7 @@ class ChatState(rx.State):
             supabase
             .from_("mensajes")
             .select("*")
-            .eq("user_email", self.user)
+            .eq("user_email", self.user.email)
             .eq("nombre_contacto", self.selected_contact_chat.nombre)
             .eq("red_social", self.selected_red_social)
             .order("fecha_hora", desc=False)
@@ -66,11 +66,13 @@ class ChatState(rx.State):
             self.messages = [
                 Mensaje(
                     mensaje=msg["mensaje"],
-                    fecha_hora=datetime.fromisoformat(msg["fecha_hora"]).strftime("%H:%M"),
+                    fecha_hora=msg["fecha_hora"],
+                    hora_formato_chat=datetime.fromisoformat(msg["fecha_hora"]).strftime("%H:%M"),
                     enviado=msg["enviado"]
                 )
                 for msg in response.data
             ]
+
 
             print(f"{len(self.messages)} mensajes cargados")
 
@@ -117,7 +119,13 @@ class ChatState(rx.State):
 
         texto = self.user_input  # capturamos el texto
         now_iso = datetime.now().isoformat()
-        nuevo_mensaje = Mensaje(mensaje=texto, fecha_hora=now_iso, enviado=True)
+        hora_formato = datetime.fromisoformat(now_iso).strftime("%H:%M")
+        nuevo_mensaje = Mensaje(
+            mensaje=texto,
+            fecha_hora=now_iso,
+            hora_formato_chat=hora_formato,
+            enviado=True
+        )
 
         # Guardar en Supabase
         supabase.from_("mensajes").insert({
@@ -133,7 +141,6 @@ class ChatState(rx.State):
         asyncio.create_task(self.send_message_to_red_social(texto))
 
         # Append y limpiar input
-        nuevo_mensaje.fecha_hora = datetime.fromisoformat(nuevo_mensaje.fecha_hora).strftime("%H:%M")
         self.messages.append(nuevo_mensaje)
         self.user_input = ""
 
@@ -209,8 +216,10 @@ class ChatState(rx.State):
                 nuevos_mensajes = []
 
         mensajes_comprobados = self.comprobarRepetidos(nuevos_mensajes)
-        self.messages.extend(mensajes_comprobados)
         self.add_mensajes_comprobados_to_supabase(mensajes_comprobados)
+        # Aquí se cargan los mensajes actualizados desde Supabase
+        return type(self).cargar_mensajes_contacto()
+
         
     def comprobarRepetidos(self, mensajes: list[Mensaje]) -> list[Mensaje]:
         mensajes_filtrados = []
@@ -224,6 +233,7 @@ class ChatState(rx.State):
 
     def add_mensajes_comprobados_to_supabase(self, mensajes: list[Mensaje]):
         for m in mensajes:
+            print(f"subiendo a supabase {m.mensaje}")
             supabase.from_("mensajes").insert({
                 "user_email": self.user.email,
                 "nombre_contacto": self.selected_contact_chat.nombre,

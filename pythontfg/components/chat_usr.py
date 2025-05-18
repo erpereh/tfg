@@ -10,7 +10,7 @@ def chat_bubble(msg: Mensaje, index: int) -> rx.Component:
             rx.vstack(
                 rx.hstack(
                     rx.text(msg.mensaje, color="white", flex="1",word_break="break-word"),
-                    rx.text(msg.fecha_hora, font_size="0.8em", color="white", margin_left="10px"),
+                    rx.text(msg.hora_formato_chat, font_size="0.8em", color="white", margin_left="10px"),
                     justify="between",
                     width="100%",
                 ),
