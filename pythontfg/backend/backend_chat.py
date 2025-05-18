@@ -160,6 +160,7 @@ class ChatState(rx.State):
                 await asyncio.to_thread(
                     enviar_mensaje_instagram,
                     self.user.instagram_usr,
+                    self.user.instagram_pass,
                     texto,
                     self.selected_contact_chat.instagram
                 )
@@ -183,7 +184,6 @@ class ChatState(rx.State):
     @rx.event
     async def reload_messages(self):
         print(f"Recargando mensajes de {self.selected_red_social}...")
-
 
         match self.selected_red_social:
             case "instagram":
