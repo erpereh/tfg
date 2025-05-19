@@ -62,11 +62,12 @@ class DiscordSelfBot(discord.Client):
         historial: list[Mensaje] = []
         async for msg in dm.history(limit=self.limit):
             texto = msg.content or "<media/sin texto>"
+            fecha = msg.created_at.isoformat()
             hora = msg.created_at.strftime("%H:%M")
             enviado = (msg.author.id == self.user.id)
             # instantiate with keywords
             historial.append(
-                Mensaje(mensaje=texto, fecha_hora=hora, enviado=enviado)
+                Mensaje(mensaje=texto, fecha_hora=fecha, hora_formato_chat=hora, enviado=enviado)
             )
         return historial
 
