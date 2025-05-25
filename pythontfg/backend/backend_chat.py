@@ -165,9 +165,10 @@ class ChatState(rx.State):
                     self.selected_contact_chat.instagram
                 )
             case "twitter":
-                await asyncio.to_thread(
-                    enviar_mensaje_twitter,
+                await enviar_mensaje_twitter(
                     self.user.twitter_usr,
+                    self.user.email,
+                    self.user.twitter_pass,
                     texto,
                     self.selected_contact_chat.twitter
                 )

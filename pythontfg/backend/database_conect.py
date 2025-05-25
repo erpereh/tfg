@@ -424,7 +424,7 @@ class Usuario(rx.State):
     sort_reverse: bool = False
 
     offset: int = 0
-    limit: int = 3  # Número de filas por página
+    limit: int = 10  # Número de filas por página
 
     @rx.event
     def load_entries(self):
