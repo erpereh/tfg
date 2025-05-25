@@ -194,11 +194,15 @@ class ChatState(rx.State):
                     self.selected_contact_chat.instagram
                 )
             case "twitter":
-                nuevos_mensajes = recargar_twitter(self.selected_contact_chat.twitter)
+                nuevos_mensajes = await recargar_twitter(
+                    self.user.twitter_usr,
+                    self.user.email,
+                    self.user.twitter_pass,
+                    self.selected_contact_chat.twitter
+                )
             case "discord":
                 #ESTO HAY Q CAMBIARLO
                 usuario_id = 460702684094136320
-                
                 try:
                     # Función síncrona, pero corre su event loop interno
                     nuevos_mensajes = await asyncio.to_thread(

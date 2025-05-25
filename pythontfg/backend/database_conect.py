@@ -412,8 +412,8 @@ class Usuario(rx.State):
 
         # También lo elimina de la lista local
         self.contactos = [c for c in self.contactos if c.nombre != nombre_contacto]
-        self.load_entries()
-        print(f"Contacto '{nombre_contacto}' eliminado correctamente.")
+        #self.load_entries()
+        print(f"Contacto '{nombre_contacto}' eliminado correctamente de {self.email}.")
 
 
     #****************************************************************************************
