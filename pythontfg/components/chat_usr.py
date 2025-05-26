@@ -61,23 +61,27 @@ def chat_ui():
                 z_index="100",
             )
         ),
-        # Botón justo encima de la caja de mensajes
-        rx.hstack(
-            rx.spacer(),  # empuja el botón a la derecha
-            rx.icon_button(
-                rx.icon("refresh-cw"),
-                on_click=ChatState.reload_messages,
-                color_scheme="blue",
-                variant="soft",
-                size="2",
+        # Solo muestra el botón de recarga si NO es chatbot
+        rx.cond(
+            ChatState.is_chat,
+            rx.hstack(
+                rx.spacer(),
+                rx.icon_button(
+                    rx.icon("refresh-cw"),
+                    on_click=ChatState.reload_messages,
+                    color_scheme="blue",
+                    variant="soft",
+                    size="2",
+                ),
+                width="100%",
             ),
-            width="100%",
         ),
         rx.box(
             rx.foreach(
                 ChatState.messages,
                 lambda msg, i: chat_bubble(msg, i)
             ),
+            
             overflow_y="auto",
             height="70vh",
             width="100%",
@@ -87,15 +91,19 @@ def chat_ui():
             bg="#1a1a1a",
         ),
         rx.hstack(
-            rx.button(
-                rx.hstack(
-                    rx.icon(tag="lightbulb", size=24, margin_right="1"), 
-                    align_items="center",
+            rx.cond(
+                ChatState.is_chat,
+                rx.button(
+                    rx.hstack(
+                        rx.icon(tag="lightbulb", size=24, margin_right="1"), 
+                        align_items="center",
+                    ),
+                    on_click=ChatState.write_with_ia,
+                    variant="solid",
+                    disabled=ChatState.is_generating_ia,
                 ),
-                on_click=ChatState.write_with_ia,
-                variant="solid",
-                disabled=ChatState.is_generating_ia,
             ),
+            
             rx.text_area(
                 value=ChatState.user_input,
                 placeholder="Escribe un mensaje...",
@@ -108,7 +116,11 @@ def chat_ui():
                 max_rows=6,
                 resize="none",
             ),
-            rx.button("Enviar", on_click=ChatState.send_message, bg="#8265d4", color="white"),
+            rx.cond(
+                ChatState.is_chat,
+                rx.button("Enviar", on_click=ChatState.send_message, bg="#8265d4", color="white"),
+                rx.button("Envio", on_click=ChatState.write_with_ia, bg="#8265d4", color="white", disabled=ChatState.is_generating_ia),
+            ),
             width="100%",
         ),
         width="100%",

@@ -4,4 +4,4 @@ from .index import index
 from .profile import profile
 from .settings import settings
 
-__all__ = ["about", "index", "profile", "chat", "settings", "contactos", "login", "registrarse"]
+__all__ = ["about", "index", "profile", "chat", "settings", "contactos", "login", "registrarse", "chatbot"]

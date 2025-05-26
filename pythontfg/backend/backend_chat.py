@@ -35,6 +35,8 @@ class ChatState(rx.State):
     messages: List[Mensaje] = []
 
     is_generating_ia: bool = False
+    
+    is_chat: bool = False  # Para saber si es el chatbot o no
 
     @rx.event
     def cargar_usuario(self, datos: dict):
@@ -346,18 +348,20 @@ class ChatState(rx.State):
     async def write_with_ia(self):
         async with self:
             self.is_generating_ia = True
-        yield  # <- informa al cliente que hay un cambio de estado
+        yield  # informa al cliente que hay un cambio de estado
 
-        history = [
-            {"role": "user" if m.enviado else "assistant", "content": m.mensaje}
-            for m in self.messages
-        ]
+        history = [{"role": "user" if m.enviado else "assistant", "content": m.mensaje} for m in self.messages]
 
-        system_prompt = {
-            "role": "system",
-            "content": "Eres una persona muy maja que se hace pasar por la persona original respondiendo mensajes de redes sociales, debes comportarte como tal y no hacer preguntas como, ¿tienes mas dudas?. Responde de forma amigable. Respondes con mesajes cortos, propios de un chat."
-        }
-
+        if self.is_chat:
+            system_prompt = {
+                "role": "system",
+                "content": "Eres una persona muy maja que se hace pasar por la persona original respondiendo mensajes de redes sociales, debes comportarte como tal y no hacer preguntas como, ¿tienes mas dudas?. Responde de forma amigable. Respondes con mensajes cortos, propios de un chat."
+            }
+        else:
+            system_prompt = {
+                "role": "system",
+                "content": "Eres un chatbot muy útil, ya que vas a coger la información de los mensajes de un chat y vas a responder en base al contexto de la conversación."
+            }
         api_messages = [system_prompt] + history
 
         response = client.chat.completions.create(
@@ -366,11 +370,35 @@ class ChatState(rx.State):
         )
 
         ia_text = response.choices[0].message.content
-        
+
         async with self:
-            self.user_input = ia_text
+            if self.is_chat:
+                # Cuando es chat, coloca la respuesta en user_input (input de texto)
+                self.user_input = ia_text
+            else:
+                # Cuando no es chat, añade un nuevo mensaje (bubble) con la respuesta IA
+                now_iso = datetime.now().isoformat()
+                self.messages.append(Mensaje(
+                    mensaje=self.user_input,
+                    fecha_hora=now_iso,
+                    hora_formato_chat=datetime.fromisoformat(now_iso).strftime("%H:%M"),
+                    enviado=True
+                ))
+                
+                respuesta_ia = Mensaje(
+                    mensaje=ia_text,
+                    fecha_hora=now_iso,
+                    hora_formato_chat=datetime.fromisoformat(now_iso).strftime("%H:%M"),
+                    enviado=False
+                )
+                self.messages.append(respuesta_ia)
+                self.user_input = ""
+
             self.is_generating_ia = False
-        yield  # <- informa al cliente que hay un cambio de estado
+
+            
+        yield  # informa al cliente que hay un cambio de estado
+
 
         """
         EN CASO DE QUIERER GUARDAR EN LA BASE DE DATOS

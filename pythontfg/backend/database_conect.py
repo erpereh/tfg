@@ -251,6 +251,7 @@ class Usuario(rx.State):
     @rx.event
     def enviar_datos_chat(self):
         from pythontfg.backend.backend_chat import ChatState
+        ChatState.is_chat = True
         datos = {
             "instagram_usr": self.instagram_usr,
             "instagram_pass": self.instagram_pass,
@@ -263,6 +264,7 @@ class Usuario(rx.State):
             "email": self.email
         }
         return ChatState.cargar_usuario(datos)
+    
 
 
     

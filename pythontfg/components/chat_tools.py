@@ -53,6 +53,7 @@ def social_buttons() -> rx.Component:
 
 
 def chatbar() -> rx.Component:
+    """ ESTE ES EL DE CHAT """
     return rx.box(
         rx.vstack(
             rx.hstack(
@@ -139,3 +140,4 @@ def area_chat() -> rx.Component:
         width="100%",
         height="100%",
     )
+    

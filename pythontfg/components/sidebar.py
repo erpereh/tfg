@@ -75,6 +75,7 @@ def sidebar_item(text: str, url: str) -> rx.Component:
                 text,
                 ("Overview", sidebar_item_icon("home")),
                 ("Chat", sidebar_item_icon("message-circle")),
+                ("ChatBot", sidebar_item_icon("bot")),
                 ("Contactos", sidebar_item_icon("table-2")),
                 ("About", sidebar_item_icon("book-open")),
                 ("Profile", sidebar_item_icon("user")),

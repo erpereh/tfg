@@ -1,19 +1,18 @@
-import reflex as rx
-
 from pythontfg.backend.backend_chat import ChatState
 from pythontfg.backend.database_conect import Usuario
 from pythontfg.backend.usuario_ligero import UsuarioLigero
 from ..templates import template
 from pythontfg.components.chat_tools import chatbar
 from pythontfg.components.chat_tools import area_chat
+import reflex as rx
 
 @template(
-    route="/chat",
-    title="Chat",
+    route="/chatbot",
+    title="ChatBot",
     on_load=Usuario.enviar_datos_chat
 )
-def chat() -> rx.Component:
-    ChatState.is_chat = True
+def chatbot() -> rx.Component:
+    ChatState.is_chat = False 
     return rx.hstack(
         chatbar(),
         area_chat(),
