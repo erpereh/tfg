@@ -35,8 +35,8 @@ def sidebar_footer() -> rx.Component:
     """
     return rx.hstack(
         rx.link(
-            rx.text("Docs", size="3"),
-            href="https://reflex.dev/docs/getting-started/introduction/",
+            rx.text("Documentación", size="3"),
+            href="https://deepwiki.com/erpereh/tfg", #href="https://reflex.dev/docs/getting-started/introduction/",
             color_scheme="gray",
             underline="none",
         ),
@@ -77,7 +77,6 @@ def sidebar_item(text: str, url: str) -> rx.Component:
                 ("Chat", sidebar_item_icon("message-circle")),
                 ("ChatBot", sidebar_item_icon("bot")),
                 ("Contactos", sidebar_item_icon("table-2")),
-                ("About", sidebar_item_icon("book-open")),
                 ("Profile", sidebar_item_icon("user")),
                 ("Settings", sidebar_item_icon("settings")),
                 sidebar_item_icon("layout-dashboard"),
@@ -134,8 +133,8 @@ def sidebar() -> rx.Component:
     ordered_page_routes = [
         "/overview",
         "/chat",
+        "/chatbot",
         "/contactos",
-        "/about",
         "/profile",
         "/settings",
     ]
