@@ -8,8 +8,8 @@ from ..views.radius_picker import radius_picker
 from ..views.scaling_picker import scaling_picker
 
 
-@template(route="/settings", title="Settings")
-def settings() -> rx.Component:
+@template(route="/configuracion", title="Configuración")
+def configuracion() -> rx.Component:
     """The settings page.
 
     Returns:
@@ -17,7 +17,7 @@ def settings() -> rx.Component:
 
     """
     return rx.vstack(
-        rx.heading("Settings", size="5"),
+        rx.heading("Configuración", size="5"),
         # Primary color picker
         rx.vstack(
             rx.hstack(

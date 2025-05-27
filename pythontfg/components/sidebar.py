@@ -73,12 +73,12 @@ def sidebar_item(text: str, url: str) -> rx.Component:
         rx.hstack(
             rx.match(
                 text,
-                ("Overview", sidebar_item_icon("home")),
+                ("Inicio", sidebar_item_icon("home")),
                 ("Chat", sidebar_item_icon("message-circle")),
                 ("ChatBot", sidebar_item_icon("bot")),
                 ("Contactos", sidebar_item_icon("table-2")),
-                ("Profile", sidebar_item_icon("user")),
-                ("Settings", sidebar_item_icon("settings")),
+                ("Perfil", sidebar_item_icon("user")),
+                ("Configuración", sidebar_item_icon("settings")),
                 sidebar_item_icon("layout-dashboard"),
             ),
             rx.text(text, size="3", weight="regular"),
@@ -131,12 +131,12 @@ def sidebar() -> rx.Component:
 
     # The ordered page routes.
     ordered_page_routes = [
-        "/overview",
+        "/inicio",
         "/chat",
         "/chatbot",
         "/contactos",
-        "/profile",
-        "/settings",
+        "/perfil",
+        "/configuracion",
     ]
 
     # Get the decorated pages.

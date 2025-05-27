@@ -4,8 +4,8 @@ from ..templates import template
 import reflex as rx
 
 
-@template(route="/profile", title="Profile")
-def profile() -> rx.Component:
+@template(route="/perfil", title="Perfil")
+def perfil() -> rx.Component:
     return rx.vstack(
         # Encabezado superior
         rx.hstack(
@@ -30,7 +30,6 @@ def profile() -> rx.Component:
                         "Guardar cambios",
                         size="3",
                         variant="solid",
-                        color_scheme="green",
                         type="submit",
                     ),
                     spacing="4",

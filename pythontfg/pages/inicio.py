@@ -45,8 +45,8 @@ def tab_content_header() -> rx.Component:
     )
 
 
-@template(route="/overview", title="Overview", on_load=StatsState.randomize_data)
-def index() -> rx.Component:
+@template(route="/inicio", title="Inicio", on_load=StatsState.randomize_data)
+def inicio() -> rx.Component:
     """The overview page.
     Returns:
         The UI for the overview page.

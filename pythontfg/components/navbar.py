@@ -22,19 +22,19 @@ def menu_item(text: str, url: str) -> rx.Component:
     """
     # Whether the item is active.
     active = (rx.State.router.page.path == url.lower()) | (
-        (rx.State.router.page.path == "/") & text == "Overview"
+        (rx.State.router.page.path == "/") & text == "Inicio"
     )
 
     return rx.link(
         rx.hstack(
             rx.match(
                 text,
-                ("Overview", menu_item_icon("home")),
+                ("Inicio", menu_item_icon("home")),
                 ("Table", menu_item_icon("table-2")),
                 ("Chat", menu_item_icon("message-circle")),
                 ("ChatBot", menu_item_icon("bot")),
-                ("Profile", menu_item_icon("user")),
-                ("Settings", menu_item_icon("settings")),
+                ("Perfil", menu_item_icon("user")),
+                ("Configuración", menu_item_icon("settings")),
                 menu_item_icon("layout-dashboard"),
             ),
             rx.text(text, size="4", weight="regular"),
@@ -104,12 +104,12 @@ def menu_button() -> rx.Component:
 
     # The ordered page routes.
     ordered_page_routes = [
-        "/overview",
+        "/inicio",
         "/chat",
         "/chatbot",
         "/contactos",
-        "/profile",
-        "/settings",
+        "/perfil",
+        "/configuracion",
     ]
 
     # Get the decorated pages.
