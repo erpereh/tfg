@@ -147,6 +147,7 @@ class Usuario(rx.State):
             self.error = ""
             self.cargar_datos_usr(res)
             self.cargar_contactos()
+            self.cargar_estadisticas()
             return rx.redirect("/overview")
         else:
             # No coincide email/pass
@@ -529,3 +530,36 @@ class Usuario(rx.State):
                 ])
 
         return rx.download(url="/contactos.csv")
+
+
+    #****************************************************************************************
+    #******************* TODO ESTO ES PARA LAS ESTADÍSTICAS DEL OVERVIEW ********************
+    #****************************************************************************************
+    stat_num_mensajes=0
+    stat_media_redes_sociales_disponibles_por_contacto = 0.0
+
+    def cargar_estadisticas(self):
+        res = supabase.table("mensajes").select("*").eq("user_email", self.email).execute()
+
+        if res.data is not None:
+            self.stat_num_mensajes = len(res.data)
+        else:
+            self.stat_num_mensajes = 0
+
+        cont = 0
+        for c in self.contactos:
+            if c.instagram != "":
+                cont += 1
+            if c.discord != "":
+                cont += 1
+            if c.twitter != "":
+                cont += 1
+            if c.linkedin != "":
+                cont += 1
+
+        total_contactos = len(self.contactos)
+        if total_contactos > 0:
+            self.stat_media_redes_sociales_disponibles_por_contacto = cont / total_contactos
+        else:
+            self.stat_media_redes_sociales_disponibles_por_contacto = 0.0
+

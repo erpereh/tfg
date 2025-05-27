@@ -20,7 +20,6 @@ from ..views.charts import (
     timeframe_select,
     users_chart,
 )
-from ..views.stats_cards import stats_cards
 
 
 def _time_data() -> rx.Component:
@@ -49,36 +48,89 @@ def tab_content_header() -> rx.Component:
 @template(route="/overview", title="Overview", on_load=StatsState.randomize_data)
 def index() -> rx.Component:
     """The overview page.
-
     Returns:
         The UI for the overview page.
 
     """
+    num_contactos = Usuario.contactos.length()
     return rx.vstack(
-        rx.heading(f"Hola, {Usuario.nombre}", size="5"),
         rx.flex(
-            rx.input(
-                rx.input.slot(rx.icon("search"), padding_left="0"),
-                placeholder="Search here...",
-                size="3",
-                width="100%",
-                max_width="450px",
-                radius="large",
-                style=styles.ghost_input_style,
+            rx.heading(
+                f"Hola, {Usuario.nombre}",
+                size="8",
+                white_space="nowrap",
             ),
             rx.flex(
-                notification("bell", "cyan", 12),
-                notification("message-square-text", "plum", 6),
+                rx.link(
+                    notification("message-square-text", "plum", num_contactos),
+                    href="/chat",
+                    style={"cursor": "pointer"},
+                ),
                 spacing="4",
-                width="100%",
                 wrap="nowrap",
                 justify="end",
+                align="center",
             ),
             justify="between",
             align="center",
             width="100%",
         ),
-        stats_cards(),
+        rx.grid(
+            rx.card(
+                rx.hstack(
+                    rx.icon("users", size=36),
+                    rx.vstack(
+                        rx.text("Contactos", size="4", weight="medium"),
+                        rx.text(Usuario.contactos.length(), size="6", weight="bold"),
+                        spacing="1",
+                        align_items="start",
+                    ),
+                    align="center",
+                    spacing="4",
+                ),
+                size="3",
+                width="100%",
+            ),
+            rx.card(
+                rx.hstack(
+                    rx.icon("message-circle", size=36),
+                    rx.vstack(
+                        rx.text("Mensajes totales", size="4", weight="medium"),
+                        rx.text(Usuario.stat_num_mensajes, size="6", weight="bold"),
+                        spacing="1",
+                        align_items="start",
+                    ),
+                    align="center",
+                    spacing="4",
+                ),
+                size="3",
+                width="100%",
+            ),
+            rx.card(
+                rx.hstack(
+                    rx.icon("at-sign", size=36),
+                    rx.vstack(
+                        rx.text("Media redes sociales por contacto", size="4", weight="medium"),
+                        rx.text(f"{Usuario.stat_media_redes_sociales_disponibles_por_contacto:.2f}", size="6", weight="bold"),
+                        spacing="1",
+                        align_items="start",
+                    ),
+                    align="center",
+                    spacing="4",
+                ),
+                size="3",
+                width="100%",
+            ),
+            gap="1rem",
+            grid_template_columns=[
+                "1fr",
+                "repeat(1, 1fr)",
+                "repeat(2, 1fr)",
+                "repeat(3, 1fr)",
+                "repeat(3, 1fr)",
+            ],
+            width="100%",
+        ),
         card(
             rx.hstack(
                 tab_content_header(),
