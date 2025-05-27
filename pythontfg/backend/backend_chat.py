@@ -273,13 +273,14 @@ class ChatState(rx.State):
         system_prompt = {
             "role": "system",
             "content": (
-                f"Hoy es {hoy}. Debes coger el contenido del mensaje, en caso de que sea un futuro evento, "
-                "localizarás el título, su fecha y hora y su duración. "
-                "El formato que debes poner será el siguiente: evento:título_evento|fecha:AAAA-MM-DDTHH:MM:SS|duracion:HH. "
-                "En caso de que no se localice un evento o una fecha, debes devolver evento:null|fecha:null|duracion:null. "
+                f"Hoy es {hoy}. Tu única tarea es detectar si hay un evento futuro en el siguiente mensaje. "
+                "Debes responder exclusivamente en este formato (sin comillas ni comentarios):\n"
+                "evento:TÍTULO_DEL_EVENTO|fecha:AAAA-MM-DDTHH:MM:SS|duracion:HH\n"
                 "En caso de que no se localice una hora concreta pero sí una fecha y evento, deberás poner: evento:título_evento|fecha:AAAA-MM-DDT00:00:00|duracion:24. "
                 "En caso de que no se localice una duración concreta, se debe estimar según el tipo de evento en horas, siendo el mínimo 1 hora."
-                "El formato de tu respuesta debe ser claro, sin añadir comentarios ni otros formatos, un ejemplo sería: evento:Reunión con Juan y Luis|fecha:2025-05-15T17:00:00|duracion:01"
+                "O si no detectas ningún evento:\n"
+                "evento:null|fecha:null|duracion:null\n"
+                "No respondas con ningún otro texto fuera de ese formato."
             )
         }
 
@@ -345,14 +346,14 @@ class ChatState(rx.State):
     #****************************************************************************************
 
     @rx.event(background=True)
-    async def write_with_ia(self):
+    async def write_with_ia(self, is_chat_final = False):
         async with self:
             self.is_generating_ia = True
         yield  # informa al cliente que hay un cambio de estado
 
         history = [{"role": "user" if m.enviado else "assistant", "content": m.mensaje} for m in self.messages]
 
-        if self.is_chat:
+        if is_chat_final:
             system_prompt = {
                 "role": "system",
                 "content": "Eres una persona muy maja que se hace pasar por la persona original respondiendo mensajes de redes sociales, debes comportarte como tal y no hacer preguntas como, ¿tienes mas dudas?. Responde de forma amigable. Respondes con mensajes cortos, propios de un chat."
@@ -371,8 +372,10 @@ class ChatState(rx.State):
 
         ia_text = response.choices[0].message.content
 
+        print(f"supuestamente si aqui aparece true está en el chat normal: {is_chat_final}, respuesta IA: {ia_text}")
+
         async with self:
-            if self.is_chat:
+            if is_chat_final:
                 # Cuando es chat, coloca la respuesta en user_input (input de texto)
                 self.user_input = ia_text
             else:
