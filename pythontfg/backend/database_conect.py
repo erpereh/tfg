@@ -78,7 +78,7 @@ class Usuario(rx.State):
         self.set_email(value)
         self.validar_email()
     
-    def no_se_puede_cambiar_email(self, value: str):
+    def no_mod_email(self, value: str):
         self.error = "No se puede cambiar el email."
         return
 
