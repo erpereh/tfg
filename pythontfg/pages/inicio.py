@@ -15,9 +15,7 @@ from ..views.charts import (
     StatsState,
     area_toggle,
     orders_chart,
-    pie_chart,
     revenue_chart,
-    timeframe_select,
     users_chart,
 )
 
@@ -45,7 +43,65 @@ def tab_content_header() -> rx.Component:
     )
 
 
-@template(route="/inicio", title="Inicio", on_load=StatsState.randomize_data)
+def primeras_stats() -> rx.Component:
+    return rx.grid(
+        rx.card(
+            rx.hstack(
+                rx.icon("users", size=36),
+                rx.vstack(
+                    rx.text("Contactos", size="4", weight="medium"),
+                    rx.text(Usuario.contactos.length(), size="6", weight="bold"),
+                    spacing="1",
+                    align_items="start",
+                ),
+                align="center",
+                spacing="4",
+            ),
+            size="3",
+            width="100%",
+        ),
+        rx.card(
+            rx.hstack(
+                rx.icon("message-circle", size=36),
+                rx.vstack(
+                    rx.text("Mensajes totales", size="4", weight="medium"),
+                    rx.text(Usuario.stat_num_mensajes, size="6", weight="bold"),
+                    spacing="1",
+                    align_items="start",
+                ),
+                align="center",
+                spacing="4",
+            ),
+            size="3",
+            width="100%",
+        ),
+        rx.card(
+            rx.hstack(
+                rx.icon("at-sign", size=36),
+                rx.vstack(
+                    rx.text("Media redes sociales por contacto", size="4", weight="medium"),
+                    rx.text(f"{Usuario.stat_media_redes_sociales_disponibles_por_contacto:.2f}", size="6", weight="bold"),
+                    spacing="1",
+                    align_items="start",
+                ),
+                align="center",
+                spacing="4",
+            ),
+            size="3",
+            width="100%",
+        ),
+        gap="1rem",
+        grid_template_columns=[
+            "1fr",
+            "repeat(1, 1fr)",
+            "repeat(2, 1fr)",
+            "repeat(3, 1fr)",
+            "repeat(3, 1fr)",
+        ],
+        width="100%",
+    )
+
+@template(route="/inicio", title="Inicio")
 def inicio() -> rx.Component:
     """The overview page.
     Returns:
@@ -75,62 +131,8 @@ def inicio() -> rx.Component:
             align="center",
             width="100%",
         ),
-        rx.grid(
-            rx.card(
-                rx.hstack(
-                    rx.icon("users", size=36),
-                    rx.vstack(
-                        rx.text("Contactos", size="4", weight="medium"),
-                        rx.text(Usuario.contactos.length(), size="6", weight="bold"),
-                        spacing="1",
-                        align_items="start",
-                    ),
-                    align="center",
-                    spacing="4",
-                ),
-                size="3",
-                width="100%",
-            ),
-            rx.card(
-                rx.hstack(
-                    rx.icon("message-circle", size=36),
-                    rx.vstack(
-                        rx.text("Mensajes totales", size="4", weight="medium"),
-                        rx.text(Usuario.stat_num_mensajes, size="6", weight="bold"),
-                        spacing="1",
-                        align_items="start",
-                    ),
-                    align="center",
-                    spacing="4",
-                ),
-                size="3",
-                width="100%",
-            ),
-            rx.card(
-                rx.hstack(
-                    rx.icon("at-sign", size=36),
-                    rx.vstack(
-                        rx.text("Media redes sociales por contacto", size="4", weight="medium"),
-                        rx.text(f"{Usuario.stat_media_redes_sociales_disponibles_por_contacto:.2f}", size="6", weight="bold"),
-                        spacing="1",
-                        align_items="start",
-                    ),
-                    align="center",
-                    spacing="4",
-                ),
-                size="3",
-                width="100%",
-            ),
-            gap="1rem",
-            grid_template_columns=[
-                "1fr",
-                "repeat(1, 1fr)",
-                "repeat(2, 1fr)",
-                "repeat(3, 1fr)",
-                "repeat(3, 1fr)",
-            ],
-            width="100%",
-        ),
+        primeras_stats(),
+        #esto vamos a ignorar por ahora
         card(
             rx.hstack(
                 tab_content_header(),
@@ -153,21 +155,9 @@ def inicio() -> rx.Component:
             ),
         ),
         rx.grid(
-            card(
-                rx.hstack(
-                    rx.hstack(
-                        rx.icon("user-round-search", size=20),
-                        rx.text("Visitors Analytics", size="4", weight="medium"),
-                        align="center",
-                        spacing="2",
-                    ),
-                    timeframe_select(),
-                    align="center",
-                    width="100%",
-                    justify="between",
-                ),
-                pie_chart(),
-            ),
+            # AQUI VA EL DIAGRAMA EN CÍRCULO
+            diagrama_circular(),
+            #esto vamos a ignorar por ahora
             card(
                 rx.hstack(
                     rx.icon("globe", size=20),
@@ -192,4 +182,37 @@ def inicio() -> rx.Component:
         ),
         spacing="8",
         width="100%",
+    )
+
+
+
+
+def diagrama_circular() -> rx.Component:
+    return card(
+        rx.hstack(
+            rx.hstack(
+                rx.icon("user-round-search", size=20),
+                rx.text("Contactos por redes sociales", size="4", weight="medium"),
+                align="center",
+                spacing="2",
+            ),
+            align="center",
+            width="100%",
+            justify="between",
+        ),
+        rx.recharts.pie_chart(
+            rx.recharts.pie(
+                data=Usuario.datos_formato_grafico_circular,
+                data_key="value",
+                name_key="name",
+                cx="50%",
+                cy="50%",
+                padding_angle=1,
+                inner_radius="70",
+                outer_radius="100",
+                label=True,
+            ),
+            rx.recharts.legend(),
+            height=300,
+        ),
     )

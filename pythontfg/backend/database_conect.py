@@ -130,7 +130,7 @@ class Usuario(rx.State):
         
         supabase.table("users").insert({"email": self.email, "pass": self.password, "nombre": self.nombre}).execute()
         
-        return rx.redirect("/overview")
+        return rx.redirect("/inicio")
     
     def validar_login(self):
         #************************************
@@ -148,7 +148,7 @@ class Usuario(rx.State):
             self.cargar_datos_usr(res)
             self.cargar_contactos()
             self.cargar_estadisticas()
-            return rx.redirect("/overview")
+            return rx.redirect("/inicio")
         else:
             # No coincide email/pass
             self.error = "Correo o contraseña incorrectos."
@@ -536,7 +536,12 @@ class Usuario(rx.State):
     #******************* TODO ESTO ES PARA LAS ESTADÍSTICAS DEL OVERVIEW ********************
     #****************************************************************************************
     stat_num_mensajes=0
+    stat_cont_instagram=0
+    stat_cont_discord=0
+    stat_cont_twitter=0
+    stat_cont_linkedin=0
     stat_media_redes_sociales_disponibles_por_contacto = 0.0
+    datos_formato_grafico_circular: List[dict] = []
 
     def cargar_estadisticas(self):
         res = supabase.table("mensajes").select("*").eq("user_email", self.email).execute()
@@ -546,20 +551,30 @@ class Usuario(rx.State):
         else:
             self.stat_num_mensajes = 0
 
-        cont = 0
         for c in self.contactos:
             if c.instagram != "":
-                cont += 1
+                self.stat_cont_instagram += 1
             if c.discord != "":
-                cont += 1
+                self.stat_cont_discord += 1
             if c.twitter != "":
-                cont += 1
+                self.stat_cont_twitter += 1
             if c.linkedin != "":
-                cont += 1
+                self.stat_cont_linkedin += 1
+                
+                
+        cont = self.stat_cont_instagram + self.stat_cont_discord + self.stat_cont_twitter + self.stat_cont_linkedin
 
         total_contactos = len(self.contactos)
         if total_contactos > 0:
             self.stat_media_redes_sociales_disponibles_por_contacto = cont / total_contactos
         else:
             self.stat_media_redes_sociales_disponibles_por_contacto = 0.0
+            
+        self.datos_formato_grafico_circular = [
+            {"name": "Instagram", "value": self.stat_cont_instagram, "fill": "#E1306C"},  # rosa Instagram
+            {"name": "Discord", "value": self.stat_cont_discord, "fill": "#3b5998"},      # azul oscuro Discord
+            {"name": "Twitter", "value": self.stat_cont_twitter, "fill": "#1DA1F2"},      # azul Twitter
+            {"name": "Linkedin", "value": self.stat_cont_linkedin, "fill": "#0077B5"},    # azul LinkedIn
+        ]
+
 
