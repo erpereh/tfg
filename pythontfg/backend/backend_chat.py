@@ -412,6 +412,7 @@ class ChatState(rx.State):
                     "Los mensajes que empiezan por [RED_SOCIAL] son conversaciones reales de redes sociales, "
                     "los que empiezan por [CHATBOT] son mensajes del chatbot. "
                     "Responde como chatbot, pero puedes usar el contexto de las redes sociales para ayudar."
+                    "No incluyas [CHATBOT o RED_SOCIAL] en tus respuestas, "
                 ),
             }
             # El historial lleva prefijos para distinguir el origen
