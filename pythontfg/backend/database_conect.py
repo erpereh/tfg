@@ -536,18 +536,42 @@ class Usuario(rx.State):
     #******************* TODO ESTO ES PARA LAS ESTADÍSTICAS DEL OVERVIEW ********************
     #****************************************************************************************
     stat_num_mensajes=0
+    stat_media_redes_sociales_disponibles_por_contacto = 0.0
+    
     stat_cont_instagram=0
     stat_cont_discord=0
     stat_cont_twitter=0
     stat_cont_linkedin=0
-    stat_media_redes_sociales_disponibles_por_contacto = 0.0
+
     datos_formato_grafico_circular: List[dict] = []
+    
+    
+    class Mensaje_stat(rx.Base):
+        fecha: str = ""
+        enviado: bool = False
+
+    mensajes_stats: List[Mensaje_stat]
+    tipo_diagrama: bool = True
+    tipo_mensaje_seleccionado: str = "enviados"
+    enviados_data = []
+    recibidos_data = []
+    todos_data = []
+
 
     def cargar_estadisticas(self):
         res = supabase.table("mensajes").select("*").eq("user_email", self.email).execute()
 
         if res.data is not None:
             self.stat_num_mensajes = len(res.data)
+            #carga en mensajes_stats los mensajes de los últimos 30 días
+            self.mensajes_stats = [
+                self.Mensaje_stat(
+                    fecha=msg["fecha_hora"],
+                    enviado=msg["enviado"]
+                )
+                for msg in res.data
+            ]
+            self.generar_datos_estadisticos_por_fecha()
         else:
             self.stat_num_mensajes = 0
 
@@ -577,4 +601,58 @@ class Usuario(rx.State):
             {"name": "Linkedin", "value": self.stat_cont_linkedin, "fill": "#0077B5"},    # azul LinkedIn
         ]
 
+
+    def generar_datos_estadisticos_por_fecha(self):
+        
+        from collections import defaultdict
+        from datetime import datetime, timedelta
+        # Diccionarios para acumular recuentos
+        enviados_por_dia = defaultdict(int)
+        recibidos_por_dia = defaultdict(int)
+        todos_por_dia = defaultdict(int)
+
+        # Rellenamos los diccionarios desde los mensajes_stats
+        for msg in self.mensajes_stats:
+            try:
+                fecha = msg.fecha[:10]  # extrae YYYY-MM-DD
+                fecha_clave = datetime.strptime(fecha, "%Y-%m-%d").strftime("%m-%d")
+
+                if msg.enviado:
+                    enviados_por_dia[fecha_clave] += 1
+                else:
+                    recibidos_por_dia[fecha_clave] += 1
+                todos_por_dia[fecha_clave] += 1
+            except Exception as e:
+                print("Error procesando mensaje:", msg.fecha, e)
+
+        # Limpiamos las listas antes de rellenarlas
+        self.enviados_data.clear()
+        self.recibidos_data.clear()
+        self.todos_data.clear()
+
+        # Para los últimos 30 días (incluyendo hoy)
+        for i in range(30, -1, -1):
+            fecha_actual = (datetime.now() - timedelta(days=i)).strftime("%m-%d")
+
+            self.enviados_data.append({
+                "Date": fecha_actual,
+                "Enviados": enviados_por_dia[fecha_actual],
+            })
+
+            self.recibidos_data.append({
+                "Date": fecha_actual,
+                "Recibidos": recibidos_por_dia[fecha_actual],
+            })
+
+            self.todos_data.append({
+                "Date": fecha_actual,
+                "Todos": todos_por_dia[fecha_actual],
+            })
+
+
+    def set_tipo_mensaje(self, tab: str | list[str]):
+        self.tipo_mensaje_seleccionado = tab if isinstance(tab, str) else tab[0]
+    
+    def cambio_tipo_diagrama(self):
+        self.tipo_diagrama = not self.tipo_diagrama
 
