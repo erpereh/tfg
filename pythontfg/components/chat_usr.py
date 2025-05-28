@@ -98,7 +98,7 @@ def chat_ui():
                         rx.icon(tag="lightbulb", size=24, margin_right="1"), 
                         align_items="center",
                     ),
-                    on_click=ChatState.write_with_ia(True),
+                    on_click=ChatState.write_with_ia(),
                     variant="solid",
                     disabled=ChatState.is_generating_ia,
                 ),

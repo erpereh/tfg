@@ -1,10 +1,10 @@
 
 """ APIs IA """
-KEY_OPEN_ROUTER = "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"
+KEY_OPEN_ROUTER = "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"
 
 """ BASE_URL IA """
 BASE_URL_OPEN_ROUTER="https://openrouter.ai/api/v1"
-
+MODEL = "mistralai/devstral-small:free"
 
 """ SUPABASE """
 SUPABASE_URL = "https://kpwbkzdjqgginzpfcpsd.supabase.co"
