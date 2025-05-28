@@ -7,7 +7,9 @@ class Mensaje(rx.Base):
     fecha_hora: str = ""
     hora_formato_chat: str = ""
     enviado: bool = False
-
+    modo_chat: bool = False
+    
+    
     # creación eventos en Calendar
     evento_localizado: bool = False
     evento: str = ""

@@ -32,11 +32,25 @@ class ChatState(rx.State):
     
     user_input: str = ""
     
-    messages: List[Mensaje] = []
+    mensajes: List[Mensaje] = []
 
     is_generating_ia: bool = False
     
     is_chat: bool = False  # Para saber si es el chatbot o no
+    
+    mensajes_filtrados_list: List[Mensaje] = []
+
+    @rx.event
+    def set_is_chat(self, value: bool):
+        self.is_chat = value
+
+    
+    def mensajes_filtrados(self) -> List[Mensaje]:
+        return [m for m in self.mensajes if m.modo_chat == self.is_chat]
+    
+    @rx.event
+    def actualizar_mensajes_filtrados(self):
+        self.mensajes_filtrados_list = self.mensajes_filtrados()
 
     @rx.event
     def cargar_usuario(self, datos: dict):
@@ -65,22 +79,27 @@ class ChatState(rx.State):
         )
 
         if response.data:
-            self.messages = [
+            self.mensajes = [
                 Mensaje(
                     mensaje=msg["mensaje"],
                     fecha_hora=msg["fecha_hora"],
                     hora_formato_chat=datetime.fromisoformat(msg["fecha_hora"]).strftime("%H:%M"),
-                    enviado=msg["enviado"]
+                    enviado=msg["enviado"],
+                    modo_chat=msg["modo_chat"] if msg["modo_chat"] is not None else False
                 )
                 for msg in response.data
             ]
+            
+            self.mensajes_filtrados_list = self.mensajes_filtrados()
+            
+            print(f"is_chat: {self.is_chat}")
+            print(f"mensajes totales: {len(self.mensajes)}")
+            print(f"mensajes filtrados: {len(self.mensajes_filtrados_list)}")
 
+            print(f"{len(self.mensajes)} mensajes cargados")
 
-            print(f"{len(self.messages)} mensajes cargados")
-
-            ult_mensaje_recibido = next((m for m in reversed(self.messages) if not m.enviado), None)
+            ult_mensaje_recibido = next((m for m in reversed(self.mensajes) if not m.enviado), None)
             if ult_mensaje_recibido:
-                print(f"+++++++++++++ Mensaje: {ult_mensaje_recibido.mensaje}")
                 return type(self).search_event(ult_mensaje_recibido)
         else:
             print("No se encontraron mensajes.")
@@ -106,7 +125,8 @@ class ChatState(rx.State):
         self.selected_red_social = red_social
         print(f"Red social cambiada:{self.selected_red_social}")
         if self.selected_red_social != "":
-            self.messages = []
+            self.mensajes = []
+            self.mensajes_filtrados_list = self.mensajes_filtrados()
             return type(self).cargar_mensajes_contacto()
 
 
@@ -126,7 +146,8 @@ class ChatState(rx.State):
             mensaje=texto,
             fecha_hora=now_iso,
             hora_formato_chat=hora_formato,
-            enviado=True
+            enviado=True,
+            modo_chat=self.is_chat
         )
 
         # Guardar en Supabase
@@ -136,14 +157,16 @@ class ChatState(rx.State):
             "mensaje": nuevo_mensaje.mensaje,
             "fecha_hora": nuevo_mensaje.fecha_hora,
             "enviado": True,
-            "red_social": self.selected_red_social
+            "red_social": self.selected_red_social,
+            "modo_chat": self.is_chat
         }).execute()
 
         # Enviar en background, pasándole el texto
         asyncio.create_task(self.send_message_to_red_social(texto))
 
         # Append y limpiar input
-        self.messages.append(nuevo_mensaje)
+        self.mensajes.append(nuevo_mensaje)
+        self.mensajes_filtrados_list = self.mensajes_filtrados()
         self.user_input = ""
 
     async def send_message_to_red_social(self, texto: str):
@@ -232,7 +255,7 @@ class ChatState(rx.State):
         mensajes_filtrados = []
 
         for m in mensajes:
-            if all(m.mensaje != m_g.mensaje for m_g in self.messages):
+            if all(m.mensaje != m_g.mensaje for m_g in self.mensajes):
                 mensajes_filtrados.append(m)
 
         return mensajes_filtrados
@@ -247,7 +270,8 @@ class ChatState(rx.State):
                 "mensaje": m.mensaje,
                 "fecha_hora": m.fecha_hora,
                 "enviado": m.enviado,
-                "red_social": self.selected_red_social
+                "red_social": self.selected_red_social,
+                "modo_chat": m.modo_chat
             }).execute()
 
 
@@ -320,10 +344,13 @@ class ChatState(rx.State):
                     message.evento_localizado = True
 
                     # Reemplaza el mensaje dentro del array para que Reflex detecte el cambio
-                    for i, m in enumerate(self.messages):
+                    for i, m in enumerate(self.mensajes):
                         if m.mensaje == message.mensaje and not m.enviado:
-                            self.messages[i] = message
+                            self.mensajes[i] = message
                             break
+                        
+                    self.mensajes_filtrados_list = self.mensajes_filtrados()
+
                 yield  # Notifica a Reflex el cambio de estado
             else:
                 print("No se detectó ningún evento o fecha útil.")
@@ -336,7 +363,7 @@ class ChatState(rx.State):
 
     @rx.event
     def confirmar_evento(self, index: int):
-        mensaje = self.messages[index]
+        mensaje = self.mensajes[index]
         if mensaje.evento_localizado:
             crear_evento_google_calendar(mensaje.evento, mensaje.fecha_dt, mensaje.duracion)
 
@@ -344,14 +371,17 @@ class ChatState(rx.State):
     #****************************************************************************************
     #******************* TODO ESTO ES PARA GENERAR MENSAJE CON IA ***************************
     #****************************************************************************************
+    
 
+    
     @rx.event(background=True)
     async def write_with_ia(self, is_chat_final = False):
         async with self:
             self.is_generating_ia = True
         yield  # informa al cliente que hay un cambio de estado
 
-        history = [{"role": "user" if m.enviado else "assistant", "content": m.mensaje} for m in self.messages]
+        history = [{"role": "user" if m.enviado else "assistant", "content": m.mensaje} 
+           for m in self.mensajes_filtrados()]
 
         if is_chat_final:
             system_prompt = {
@@ -381,7 +411,7 @@ class ChatState(rx.State):
             else:
                 # Cuando no es chat, añade un nuevo mensaje (bubble) con la respuesta IA
                 now_iso = datetime.now().isoformat()
-                self.messages.append(Mensaje(
+                self.mensajes.append(Mensaje(
                     mensaje=self.user_input,
                     fecha_hora=now_iso,
                     hora_formato_chat=datetime.fromisoformat(now_iso).strftime("%H:%M"),
@@ -394,7 +424,8 @@ class ChatState(rx.State):
                     hora_formato_chat=datetime.fromisoformat(now_iso).strftime("%H:%M"),
                     enviado=False
                 )
-                self.messages.append(respuesta_ia)
+                self.mensajes.append(respuesta_ia)
+                self.mensajes_filtrados_list = self.mensajes_filtrados()
                 self.user_input = ""
 
             self.is_generating_ia = False

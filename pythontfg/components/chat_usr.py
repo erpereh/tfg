@@ -78,7 +78,7 @@ def chat_ui():
         ),
         rx.box(
             rx.foreach(
-                ChatState.messages,
+                ChatState.mensajes_filtrados_list,
                 lambda msg, i: chat_bubble(msg, i)
             ),
             

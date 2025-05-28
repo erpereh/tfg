@@ -10,7 +10,7 @@ from pythontfg.components.chat_tools import area_chat
 @template(
     route="/chat",
     title="Chat",
-    on_load=Usuario.enviar_datos_chat
+    on_load=[Usuario.enviar_datos_chat, ChatState.set_is_chat(True), ChatState.actualizar_mensajes_filtrados]
 )
 def chat() -> rx.Component:
     ChatState.is_chat = True

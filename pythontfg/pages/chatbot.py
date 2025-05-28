@@ -9,10 +9,9 @@ import reflex as rx
 @template(
     route="/chatbot",
     title="ChatBot",
-    on_load=Usuario.enviar_datos_chat
+    on_load=[Usuario.enviar_datos_chat, ChatState.set_is_chat(False), ChatState.actualizar_mensajes_filtrados]
 )
 def chatbot() -> rx.Component:
-    ChatState.is_chat = False 
     return rx.hstack(
         chatbar(),
         area_chat(),
