@@ -13,7 +13,6 @@ from pythontfg.components.chat_tools import area_chat
     on_load=[Usuario.enviar_datos_chat, ChatState.set_is_chat(True), ChatState.actualizar_mensajes_filtrados]
 )
 def chat() -> rx.Component:
-    ChatState.is_chat = True
     return rx.hstack(
         chatbar(),
         area_chat(),
