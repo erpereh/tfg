@@ -78,9 +78,9 @@ class Usuario(rx.State):
         self.set_email(value)
         self.validar_email()
     
-    def no_mod_email(self, value: str):
+    def no_mod_email(self, _: str = ""):
         self.error = "No se puede cambiar el email."
-        return
+
 
     def validar_telefono(self):
         if not self.telefono:
@@ -186,14 +186,15 @@ class Usuario(rx.State):
         print(f"Twitter: {self.twitter_usr} / {self.twitter_pass}")
         print(f"LinkedIn: {self.linkedin_usr} / {self.linkedin_pass}")
         
-        
     def guardar_cambios(self, form_data: dict):
-        """Actualiza los datos del usuario en Supabase."""
+        """Valida y actualiza los datos del usuario en Supabase."""
 
         # Actualiza el estado interno
         self.nombre = form_data.get("nombre", self.nombre)
-        #self.email = form_data.get("email", self.email) el mail no porque sino podría cambiar contraseñas de otra gente
+        # self.email NO se modifica
         self.telefono = form_data.get("telefono", self.telefono)
+        self.password = form_data.get("pass", self.password)  # Asegúrate de usar el mismo name del input
+
         self.instagram_usr = form_data.get("instagram_usr", self.instagram_usr)
         self.instagram_pass = form_data.get("instagram_pass", self.instagram_pass)
         self.discord_usr = form_data.get("discord_usr", self.discord_usr)
@@ -203,7 +204,20 @@ class Usuario(rx.State):
         self.linkedin_usr = form_data.get("linkedin_usr", self.linkedin_usr)
         self.linkedin_pass = form_data.get("linkedin_pass", self.linkedin_pass)
 
-        # Actualiza en la base de datos (según email como identificador)
+        # VALIDACIONES
+        self.validar_nombre()
+        if self.error:
+            return
+
+        self.validar_telefono()
+        if self.error:
+            return
+
+        self.validar_pass()
+        if self.error:
+            return
+
+        # Actualiza en la base de datos
         supabase.table("users").update({
             "nombre": self.nombre,
             "pass": self.password,
@@ -217,8 +231,10 @@ class Usuario(rx.State):
             "linkedin_usr": self.linkedin_usr,
             "linkedin_pass": self.linkedin_pass,
         }).eq("email", self.email).execute()
-    
+
         return rx.toast.success("Cambios guardados correctamente", position="top-center")
+
+
 
     def cargar_contactos(self):
         """Carga los contactos del usuario desde Supabase."""

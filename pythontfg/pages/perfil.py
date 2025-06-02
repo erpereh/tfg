@@ -1,5 +1,4 @@
 from ..backend.database_conect import Usuario
-from ..components.profile_input import profile_input
 from ..templates import template
 import reflex as rx
 
@@ -21,10 +20,9 @@ def perfil() -> rx.Component:
             rx.form.root(
                 rx.vstack(
                     profile_input("Nombre", "nombre", Usuario.nombre, "text", "user", Usuario.nombre, Usuario.on_nombre_change),
-                    profile_input("Email", "email", Usuario.email, "email", "mail", Usuario.email, Usuario.no_mod_email),
+                    profile_input_clickable_email(label="Email", name="email", value=Usuario.email, icon="mail", on_click=Usuario.no_mod_email),
                     profile_input("Contraseña", "pass", Usuario.password, "pass", "lock", Usuario.password, Usuario.on_pass_change),
                     profile_input("Teléfono", "telefono", Usuario.telefono, "tel", "phone", Usuario.telefono, Usuario.on_telefono_change),
-                    
                     rx.button(
                         rx.icon("save", size=20),
                         "Guardar cambios",
@@ -73,5 +71,62 @@ def _social_group(nombre: str, usr: str, pwd: str, icono: str) -> rx.Component:
             width="100%",
         ),
         spacing="2",
+        width="100%",
+    )
+
+def profile_input(
+    label: str,
+    name: str,
+    placeholder: str,
+    type: str,
+    icon: str,
+    default_value: str = "",
+    on_change=None,
+) -> rx.Component:
+    return rx.vstack(
+        rx.hstack(
+            rx.icon(icon, size=16, stroke_width=1.5),
+            rx.text(label),
+            width="100%",
+            align="center",
+            spacing="2",
+        ),
+        rx.input(
+            placeholder=placeholder,
+            type=type,
+            default_value=default_value,
+            name=name,
+            width="100%",
+            on_change=on_change,
+        ),
+        direction="column",
+        spacing="1",
+        width="100%",
+    )
+
+def profile_input_clickable_email(
+    label: str,
+    name: str,
+    value: str,
+    icon: str,
+    on_click=None,
+) -> rx.Component:
+    return rx.vstack(
+        rx.hstack(
+            rx.icon(icon, size=16, stroke_width=1.5),
+            rx.text(label),
+            align="center",
+            spacing="2",
+            width="100%",
+        ),
+        rx.input(
+            value=value,
+            name=name,
+            width="100%",
+            is_read_only=True,  # No editable pero permite interacción
+            on_click=on_click,
+            cursor="pointer",
+        ),
+        spacing="1",
         width="100%",
     )
