@@ -71,3 +71,5 @@ to organize your state.
 
 You can either define substates in their own files, or if the state is
 specific to a page, you can define it in the page file itself.
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/erpereh/tfg)
