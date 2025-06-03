@@ -46,67 +46,7 @@ def _show_item(item: Contacto, index: int) -> rx.Component:
                             size="2",
                         )
                     ),
-                    rx.dialog.content(
-                        rx.dialog.title("Modificar usuario"),
-                        rx.dialog.description("Rellena los campos para modificar un usuario"),
-                        rx.form(
-                            rx.flex(
-                                rx.input(
-                                    placeholder="Nombre",
-                                    value=item.nombre,
-                                    on_change=Usuario.set_nuevo_nombre,
-                                    required=True,
-                                ),
-                                rx.input(
-                                    placeholder="Email",
-                                    value=item.email,
-                                    on_change=Usuario.set_nuevo_email,
-                                    required=True,
-                                ),
-                                rx.input(
-                                    placeholder="Teléfono",
-                                    value=item.telefono,
-                                    on_change=Usuario.set_nuevo_telefono,
-                                ),
-                                rx.input(
-                                    placeholder="Instagram",
-                                    value=item.instagram,
-                                    on_change=Usuario.set_nuevo_instagram,
-                                ),
-                                rx.input(
-                                    placeholder="Discord",
-                                    value=item.discord,
-                                    on_change=Usuario.set_nuevo_discord,
-                                ),
-                                rx.input(
-                                    placeholder="Twitter",
-                                    value=item.twitter,
-                                    on_change=Usuario.set_nuevo_twitter,
-                                ),
-                                rx.input(
-                                    placeholder="LinkedIn",
-                                    value=item.linkedin,
-                                    on_change=Usuario.set_nuevo_linkedin,
-                                ),
-                                rx.flex(
-                                    rx.dialog.close(
-                                        rx.button("Cancelar", variant="soft", color_scheme="gray")
-                                    ),
-                                    rx.dialog.close(
-                                        rx.button(
-                                            "Guardar",
-                                            on_click=lambda: Usuario.modificar_contacto(item.nombre),
-                                        )
-                                    ),  
-                                    spacing="3",
-                                    justify="end",
-                                ),
-                                direction="column",
-                                spacing="4",
-                            ),
-                        ),
-                        max_width="450px",
-                    ),
+                    modificar_contacto(item), # CUADRO DE DIÁLOGO PARA MODIFICAR UN USUARIO
                 ),
                 rx.icon_button(
                     rx.icon("trash"),
@@ -258,64 +198,10 @@ def main_table() -> rx.Component:
                             size="3",
                             variant="surface",
                             display=["none", "none", "none", "flex"],
+                            on_click=Usuario.resetear_campos_nuevos,
                         ),
                     ),
-                    rx.dialog.content(
-                        rx.dialog.title("Añadir nuevo usuario"),
-                        rx.dialog.description("Rellena los campos para añadir un nuevo usuario"),
-                        rx.form(
-                            rx.flex(
-                                rx.input(
-                                    placeholder="Nombre",
-                                    value=Usuario.nuevo_nombre,
-                                    on_change=Usuario.set_nuevo_nombre,
-                                    required=True,
-                                ),
-                                rx.input(
-                                    placeholder="Email",
-                                    value=Usuario.nuevo_email,
-                                    on_change=Usuario.set_nuevo_email,
-                                    required=True,
-                                ),
-                                rx.input(
-                                    placeholder="Teléfono",
-                                    value=Usuario.nuevo_telefono,
-                                    on_change=Usuario.set_nuevo_telefono,
-                                ),
-                                rx.input(
-                                    placeholder="Instagram",
-                                    value=Usuario.nuevo_instagram,
-                                    on_change=Usuario.set_nuevo_instagram,
-                                ),
-                                rx.input(
-                                    placeholder="Discord",
-                                    value=Usuario.nuevo_discord,
-                                    on_change=Usuario.set_nuevo_discord,
-                                ),
-                                rx.input(
-                                    placeholder="Twitter",
-                                    value=Usuario.nuevo_twitter,
-                                    on_change=Usuario.set_nuevo_twitter,
-                                ),
-                                rx.input(
-                                    placeholder="LinkedIn",
-                                    value=Usuario.nuevo_linkedin,
-                                    on_change=Usuario.set_nuevo_linkedin,
-                                ),
-                                rx.flex(
-                                    rx.dialog.close(rx.button("Cancelar", variant="soft", color_scheme="gray")),
-                                    rx.dialog.close(rx.button("Guardar", type="submit")),
-                                    spacing="3",
-                                    justify="end",
-                                ),
-                                direction="column",
-                                spacing="4",
-                            ),
-                            on_submit=Usuario.add_new_user,
-                            reset_on_submit=False,
-                        ),
-                        max_width="450px",
-                    ),
+                    anadir_contacto(),
                 ),
                 # botón de exportar a csv, que llama a la función export_to_csv
                 rx.button(
@@ -361,3 +247,136 @@ def main_table() -> rx.Component:
         _pagination_view(),
         width="100%",
     )
+
+def modificar_contacto(item) -> rx.Component:
+    return rx.dialog.content(
+        rx.dialog.title("Modificar usuario"),
+        rx.dialog.description("Rellena los campos para modificar un usuario"),
+        rx.flex(
+            rx.input(
+                placeholder="Nombre",
+                value=Usuario.nuevo_nombre,
+                on_change=Usuario.nuevo_on_nombre_change,
+                required=True,
+            ),
+            rx.input(
+                placeholder="Email",
+                value=Usuario.nuevo_email,
+                on_change=Usuario.nuevo_on_email_change,
+                required=True,
+            ),
+            rx.input(
+                placeholder="Teléfono",
+                value=Usuario.nuevo_telefono,
+                on_change=Usuario.nuevo_on_telefono_change,
+            ),
+            rx.input(
+                placeholder="Instagram",
+                value=Usuario.nuevo_instagram,
+                on_change=Usuario.set_nuevo_instagram,
+            ),
+            rx.input(
+                placeholder="Discord",
+                value=Usuario.nuevo_discord,
+                on_change=Usuario.set_nuevo_discord,
+            ),
+            rx.input(
+                placeholder="Twitter",
+                value=Usuario.nuevo_twitter,
+                on_change=Usuario.set_nuevo_twitter,
+            ),
+            rx.input(
+                placeholder="LinkedIn",
+                value=Usuario.nuevo_linkedin,
+                on_change=Usuario.set_nuevo_linkedin,
+            ),
+            rx.cond(
+                Usuario.nuevo_error != "",
+                rx.text(Usuario.nuevo_error, color="red", size="2"),
+            ),
+            rx.flex(
+                rx.dialog.close(
+                    rx.button("Cancelar", variant="soft", color_scheme="gray", on_click=Usuario.resetear_campos_nuevos,)
+                ),
+                rx.dialog.close(
+                    rx.button(
+                        "Guardar",
+                        on_click=lambda: Usuario.modificar_contacto(item.nombre),
+                    )
+                ),
+                spacing="3",
+                justify="end",
+            ),
+            direction="column",
+            spacing="4",
+        ),
+        max_width="450px",
+    )
+
+def anadir_contacto () ->rx.Component:
+    return rx.dialog.content(
+        rx.dialog.title("Añadir nuevo usuario"),
+        rx.dialog.description("Rellena los campos para añadir un nuevo usuario"),
+        rx.form(
+            rx.flex(
+                rx.input(
+                    placeholder="Nombre",
+                    value=Usuario.nuevo_nombre,
+                    on_change=Usuario.nuevo_on_nombre_change,
+                    required=True,
+                ),
+                rx.input(
+                    placeholder="Email",
+                    value=Usuario.nuevo_email,
+                    on_change=Usuario.nuevo_on_email_change,
+                    required=True,
+                ),
+                rx.input(
+                    placeholder="Teléfono",
+                    value=Usuario.nuevo_telefono,
+                    on_change=Usuario.nuevo_on_telefono_change,
+                ),
+                rx.input(
+                    placeholder="Instagram",
+                    value=Usuario.nuevo_instagram,
+                    on_change=Usuario.set_nuevo_instagram,
+                ),
+                rx.input(
+                    placeholder="Discord",
+                    value=Usuario.nuevo_discord,
+                    on_change=Usuario.set_nuevo_discord,
+                ),
+                rx.input(
+                    placeholder="Twitter",
+                    value=Usuario.nuevo_twitter,
+                    on_change=Usuario.set_nuevo_twitter,
+                ),
+                rx.input(
+                    placeholder="LinkedIn",
+                    value=Usuario.nuevo_linkedin,
+                    on_change=Usuario.set_nuevo_linkedin,
+                ),
+                # Mensaje de error debajo
+                rx.cond(
+                    Usuario.nuevo_error != "",
+                    rx.text(Usuario.nuevo_error, color="red", size="2"),
+                ),
+                rx.flex(
+                    rx.dialog.close(rx.button("Cancelar", variant="soft", color_scheme="gray", on_click=Usuario.resetear_campos_nuevos,)),
+                    rx.dialog.close(
+                        rx.button(
+                            "Guardar",
+                            type="submit"  # Ejecuta on_submit del <form>
+                        )
+                    ),
+                    spacing="3",
+                    justify="end",
+                ),
+                direction="column",
+                spacing="4",
+            ),
+            on_submit=Usuario.add_new_user,
+            reset_on_submit=False,
+        ),
+        max_width="450px",
+    ),

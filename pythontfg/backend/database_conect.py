@@ -136,7 +136,7 @@ class Usuario(rx.State):
         #************************************
         #comentar, solo para desarrollo
         self.set_email("1@gmail.com")
-        self.set_password("1")
+        self.set_password("111111")
         #************************************
         
         # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
@@ -300,14 +300,71 @@ class Usuario(rx.State):
     
     contactos: List[Contacto] = []
 
-    def add_new_user(self):
+    nuevo_error: str = ""
+
+    def nuevo_on_telefono_change(self, value: str):
+        self.nuevo_telefono = value
+        self.nuevo_validar_telefono()
+
+    def nuevo_on_nombre_change(self, value: str):
+        self.nuevo_nombre = value
+        self.nuevo_validar_nombre()
+
+    def nuevo_on_email_change(self, value: str):
+        self.nuevo_email = value
+        self.nuevo_validar_email()
         
-        if not self.nuevo_nombre or not self.nuevo_telefono or not self.nuevo_email:
-            # Aqui deberíamos poner para que salga este mensaje de error en la interfaz de añadir contacto
-            #self.error = "Nombre, Teléfono y Email del contacto son obligatorios."
-            print("Nombre, Teléfono y Email del contacto son obligatorios.")
+    def nuevo_validar_nombre(self):
+        if len(self.nuevo_nombre) < 3:
+            self.nuevo_error = "El nombre debe tener al menos 3 caracteres."
             return
+        self.nuevo_error = ""  # limpia el error si todo está bien
+
+    def nuevo_validar_telefono(self):
+        if not self.nuevo_telefono:
+            self.nuevo_error = "El teléfono no puede estar vacío."
+            return
+        # Solo 9 dígitos
+        pattern = r"^\d{9}$"
+        if not re.match(pattern, self.nuevo_telefono):
+            self.nuevo_error = "El teléfono debe tener exactamente 9 dígitos numéricos."
+            return
+        self.nuevo_error = ""  # limpia el error si está bien
+
+    def nuevo_validar_email(self):
+        if not self.nuevo_email:
+            self.nuevo_error = "El correo no puede estar vacío."
+            return
+        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(pattern, self.nuevo_email):
+            self.nuevo_error = "El formato del correo no es válido."
+            return
+        self.nuevo_error = ""  # limpia el error si está bien
         
+    
+    def add_new_user(self):
+        print("Añadiendo...")
+        self.nuevo_validar_nombre()
+        if self.nuevo_error:
+            return rx.toast.error(self.nuevo_error, position="top-center")
+        self.nuevo_validar_email()
+        if self.nuevo_error:
+            return rx.toast.error(self.nuevo_error, position="top-center")
+        self.nuevo_validar_telefono()
+        if self.nuevo_error:
+            return rx.toast.error(self.nuevo_error, position="top-center")
+        
+        # Verifica si ya existe antes de añadir nada
+        existing_contact = supabase.table("contactos")\
+                .select("nombre")\
+                .eq("user_email", self.email)\
+                .eq("nombre", self.nuevo_nombre)\
+                .execute()
+
+        if existing_contact.data and len(existing_contact.data) > 0:
+            return rx.toast.error("El contacto ya existe", position="top-center")
+
+        # Ahora sí puedes crear y añadir el nuevo contacto
         nuevo = Contacto(
             nombre=self.nuevo_nombre,
             email=self.nuevo_email,
@@ -318,46 +375,34 @@ class Usuario(rx.State):
             linkedin=self.nuevo_linkedin,
         )
         self.contactos.append(nuevo)
-        
-        
-        
-        existing_contact = supabase.table("contactos")\
-                .select("nombre")\
-                .eq("user_email", self.email)\
-                .eq("nombre", self.nuevo_nombre)\
-                .execute()
 
-        if existing_contact.data and len(existing_contact.data) > 0:
-            self.error = "El contacto ya existe."
-            print("El contacto ya existe.")
-            return
-
-        # Insertar nuevo contacto asociado al usuario actual
+        # Inserta en Supabase
         supabase.table("contactos").insert({
             "nombre": self.nuevo_nombre,
-            "email": self.nuevo_email,  # Email del contacto
+            "email": self.nuevo_email,
             "telefono": self.nuevo_telefono,
             "instagram": self.nuevo_instagram,
             "discord": self.nuevo_discord,
             "twitter": self.nuevo_twitter,
             "linkedin": self.nuevo_linkedin,
-            "user_email": self.email  # Email del usuario autenticado
+            "user_email": self.email
         }).execute()
-        
-        # Resetea campos del formulario
-        self.nuevo_nombre = ""
-        self.nuevo_email = ""
-        self.nuevo_telefono = ""
-        self.nuevo_instagram = ""
-        self.nuevo_discord = ""
-        self.nuevo_twitter = ""
-        self.nuevo_linkedin = ""
-        
+
         self.load_entries()
-        
-        
+        return rx.toast.success("Contacto creado correctamente", position="top-center")
+
+    
     def modificar_contacto(self, nombre_contacto:str):
         print("modificando...")
+        self.nuevo_validar_nombre()
+        if self.nuevo_error:
+            return rx.toast.error(self.nuevo_error, position="top-center")
+        self.nuevo_validar_email()
+        if self.nuevo_error:
+            return rx.toast.error(self.nuevo_error, position="top-center")
+        self.nuevo_validar_telefono()
+        if self.nuevo_error:
+            return rx.toast.error(self.nuevo_error, position="top-center")
         
         supabase.table("contactos")\
                 .update({
@@ -372,15 +417,6 @@ class Usuario(rx.State):
                 .eq("user_email", self.email)\
                 .eq("nombre", nombre_contacto)\
                 .execute()
-                
-        # Resetea campos del formulario
-        self.nuevo_nombre = ""
-        self.nuevo_email = ""
-        self.nuevo_telefono = ""
-        self.nuevo_instagram = ""
-        self.nuevo_discord = ""
-        self.nuevo_twitter = ""
-        self.nuevo_linkedin = ""
         
         #borra el anterior contacto de la lista y añade el nuevo
         self.contactos = [c for c in self.contactos if c.nombre != nombre_contacto]
@@ -394,7 +430,18 @@ class Usuario(rx.State):
             linkedin=self.nuevo_linkedin,
         ))
         self.load_entries()
-        print(f"Contacto '{nombre_contacto}' modificado correctamente.")
+        return rx.toast.success("Contacto modificado correctamente", position="top-center")
+    
+    
+    def resetear_campos_nuevos(self):
+        # Resetea campos del formulario
+        self.nuevo_nombre = ""
+        self.nuevo_email = ""
+        self.nuevo_telefono = ""
+        self.nuevo_instagram = ""
+        self.nuevo_discord = ""
+        self.nuevo_twitter = ""
+        self.nuevo_linkedin = ""
 
     selected_contact: Optional[Contacto] = None
     
@@ -527,13 +574,15 @@ class Usuario(rx.State):
         self.cargar_contactos()
 
     def export_to_csv(self):
-        """Genera un CSV con los contactos y lo pone disponible para descargar."""
+        """Genera un CSV actualizado con los contactos y lo pone disponible para descargar."""
+        self.load_entries()  # <-- Asegúrate de que tienes los datos más recientes
+
         file_path = Path("assets/contactos.csv")
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         with file_path.open(mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Nombre", "Email", "Teléfono", "Instagram", "discord", "Twitter", "LinkedIn"])
+            writer.writerow(["Nombre", "Email", "Teléfono", "Instagram", "Discord", "Twitter", "LinkedIn"])
             for contacto in self.contactos:
                 writer.writerow([
                     contacto.nombre,
@@ -546,6 +595,7 @@ class Usuario(rx.State):
                 ])
 
         return rx.download(url="/contactos.csv")
+
 
 
     #****************************************************************************************
