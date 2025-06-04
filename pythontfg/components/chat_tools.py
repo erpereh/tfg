@@ -111,21 +111,76 @@ def area_chat() -> rx.Component:
         rx.cond(
             ChatState.selected_contact_chat,
             rx.vstack(
-                rx.text(
-                    f"Chat con {ChatState.selected_contact_chat.nombre} en {ChatState.selected_red_social}",
-                    font_size="1.5em",
-                    font_weight="bold"
+                # Agrupa ambas cards en un hstack para que estén una al lado de la otra
+                rx.hstack(
+                    rx.card(
+                        rx.hstack(
+                            rx.cond(
+                                ChatState.selected_red_social == "instagram",
+                                rx.icon(tag="instagram", color="#E1306C", size=32),
+                                rx.cond(
+                                    ChatState.selected_red_social == "discord",
+                                    rx.icon(tag="message-circle-heart", color="#3b5998", size=32),
+                                    rx.cond(
+                                        ChatState.selected_red_social == "twitter",
+                                        rx.icon(tag="twitter", color="#1DA1F2", size=32),
+                                        rx.cond(
+                                            ChatState.selected_red_social == "linkedin",
+                                            rx.icon(tag="linkedin", color="#0077B5", size=32),
+                                            rx.fragment()
+                                        )
+                                    )
+                                )
+                            ),
+                            rx.text(
+                                f"{ChatState.selected_contact_chat.nombre}",
+                                font_size="1.5em",
+                                font_weight="bold",
+                                margin_left="0.5em"
+                            ),
+                            spacing="2",
+                            align_items="center",
+                        ),
+                        padding="1em",
+                        border_radius="md",
+                        box_shadow="md",
+                        background_color=styles.gray_bg_color,
+                        margin_bottom="0em",  # Más pegado al chat
+                        min_width="250px",
+                    ),
+                    rx.card(
+                        rx.hstack(
+                            rx.icon(tag="mail", color="#0077B5", size=32),
+                            rx.text(
+                                f"{ChatState.mensajes_filtrados_list.length()}",
+                                font_size="1.5em",
+                                font_weight="bold",
+                                margin_left="0.5em"
+                            ),
+                            spacing="2",
+                            align_items="center",
+                        ),
+                        padding="1em",
+                        border_radius="md",
+                        box_shadow="md",
+                        background_color=styles.gray_bg_color,
+                        margin_bottom="0em",  # Más pegado al chat
+                        width="auto",
+                    ),
+                    spacing="4",  # Más espacio entre las dos cards
+                    align_items="center",
+                    width="100%",
                 ),
                 rx.cond(
                     ChatState.is_all_selected(),
                     chat_ui(),
                     rx.text("Selecciona todos los elementos primero.", color="gray"),
                 ),
-                spacing="4",
+                spacing="2",  # Menos espacio vertical entre las cards y el chat
                 padding="2em",
                 width="100%",
-                flex="1",              # Permitir expansión
-                min_height="100vh",    # Asegurar altura total
+                flex="1",
+                min_height="100vh",
                 overflow_y="auto",
             ),
             rx.box(
@@ -139,4 +194,3 @@ def area_chat() -> rx.Component:
         width="100%",
         height="100%",
     )
-    
