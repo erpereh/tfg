@@ -3,7 +3,6 @@ from pythontfg import styles
 from pythontfg.backend.database_conect import Usuario
 from pythontfg.components.button_redes_chat import button_redes
 from pythontfg.backend.backend_chat import ChatState
-from pythontfg.backend.usuario_ligero import UsuarioLigero
 from pythontfg.components.chat_usr import chat_ui
 
 def social_buttons() -> rx.Component:

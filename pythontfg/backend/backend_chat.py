@@ -1,9 +1,9 @@
 from pythontfg.backend.social_apis.discord import enviar_mensaje_discord, recargar_discord
 from pythontfg.backend.social_apis.instagram import enviar_mensaje_instagram, recargar_instagram
-from pythontfg.backend.social_apis.linkedin import enviar_mensaje_linkedin, recargar_linkedin
+from pythontfg.backend.social_apis.linkedin import LinkedInMessaging
 from pythontfg.backend.social_apis.twitter import enviar_mensaje_twitter, recargar_twitter
 import reflex as rx
-from pythontfg.backend.social_apis.calendar import crear_evento_google_calendar
+from pythontfg.backend.social_apis.calendar_api import crear_evento_google_calendar
 from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
 from pythontfg.backend.usuario_ligero import UsuarioLigero  # si lo metes en archivo aparte
@@ -24,6 +24,8 @@ client = OpenAI(
 
 class ChatState(rx.State):
     
+    linkedin_chat_id = "qkVWRx4mXVKdgkXZXBAFQQ"
+    linkedin_dsn = "IOKmnCf0Q-25BAabPas_fQ_MESSAGING"
     user: Optional[UsuarioLigero] = None
 
 
@@ -39,6 +41,7 @@ class ChatState(rx.State):
     is_chat: bool = False  # Para saber si es el chatbot o no
     
     mensajes_filtrados_list: List[Mensaje] = []
+    
 
     @rx.event
     def set_is_chat(self, value: bool):
@@ -198,11 +201,12 @@ class ChatState(rx.State):
                     self.selected_contact_chat.twitter
                 )
             case "linkedin":
+                
+                linkedin = LinkedInMessaging(self.linkedin_dsn)
                 await asyncio.to_thread(
-                    enviar_mensaje_linkedin,
-                    self.user.linkedin_usr,
-                    texto,
-                    self.selected_contact_chat.linkedin
+                    linkedin.enviar_mensajes_linkedin,
+                    self.linkedin_chat_id,
+                    texto
                 )
             case _:
                 print("Red social no reconocida.")
@@ -236,15 +240,25 @@ class ChatState(rx.State):
                         usuario_id,
                         20
                     )
+                    print(f"Recargados {len(nuevos_mensajes)} mensajes de Discord.")
                 except Exception as e:
                     print("Error al recargar Discord:", e)
                     nuevos_mensajes = []
             case "linkedin":
-                nuevos_mensajes = recargar_linkedin(self.selected_contact_chat.linkedin)
+                linkedin = LinkedInMessaging(self.linkedin_dsn)
+                try:
+                    nuevos_mensajes = await asyncio.to_thread(
+                        linkedin.recargar_linkedin,
+                        self.linkedin_chat_id
+                    )
+                    print(f"Recargados {len(nuevos_mensajes)} mensajes de LinkedIn.")
+                except Exception as e:
+                    print("Error al recargar LinkedIn:", e)
+                    nuevos_mensajes = []
             case _:
                 print("Red social no reconocida.")
                 nuevos_mensajes = []
-
+        
         mensajes_comprobados = self.comprobarRepetidos(nuevos_mensajes)
         self.add_mensajes_comprobados_to_supabase(mensajes_comprobados)
         # Aquí se cargan los mensajes actualizados desde Supabase
