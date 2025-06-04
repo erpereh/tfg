@@ -14,6 +14,9 @@ class LinkedInMessaging:
     def __init__(self, dsn):
         self.dsn = dsn
         self.sync_account()
+        
+        self.mi_id = self.obtener_mi_id()
+        print(f"Mi ID de LinkedIn: {self.mi_id}")
 
     def sync_account(self):
         url = f"{self.BASE_URL}/accounts/{self.dsn}/sync"
@@ -67,25 +70,27 @@ class LinkedInMessaging:
         items = items[-cantidad:]
 
         # Asegúrate de tener el ID una sola vez
-        mi_id = self.obtener_mi_id()
-
+        mi_id = "ACoAAEuCDxIBsAHzghy2sjIyMj_-svPKoafs5Lw"
+        if not mi_id:
+            print("No se pudo obtener tu sender_id de LinkedIn. Todos los mensajes aparecerán como 'Contacto'.")
         nuevos_mensajes = []
         for msg in items:
             texto = msg.get('text', 'Mensaje sin texto')
             fecha = parsear_fecha_iso(msg.get('createdAt') or msg.get('timestamp'))
-
-            enviado = (msg.get("from", {}).get("id") == mi_id)
+            enviado = (msg.get("sender_id") != mi_id)
 
             mensaje = Mensaje(
                 mensaje=texto,
                 fecha_hora=fecha.isoformat(),
                 hora_formato_chat=fecha.strftime("%H:%M"),
-                enviado=enviado
+                enviado=enviado,
+                modo_chat=True
             )
             nuevos_mensajes.append(mensaje)
-
+            print(f"Comparando: sender_id={msg.get('sender_id')} vs mi_id={mi_id}")
             autor = "Tú" if enviado else "Contacto"
             print(f"{autor}: {texto} a las {fecha.isoformat()}")
+            #print("Mensaje completo:", msg)
 
         return nuevos_mensajes
 
@@ -94,16 +99,19 @@ class LinkedInMessaging:
         response = requests.get(url, headers=self.headers)
         if response.ok:
             data = response.json()
-            # Según la doc y ejemplos, el id puede estar en data['id'] o data['account']['id']
-            # Ajusta esto según la estructura real de la respuesta
-            mi_id = data.get('id') or data.get('account', {}).get('id')
-
+            print("Respuesta completa de la cuenta:", data)
+            # Extrae el sender_id de connection_params.im.id
+            mi_id = (
+                data.get("connection_params", {})
+                    .get("im", {})
+                    .get("id")
+            )
             if mi_id:
                 self.mi_id = mi_id
-                print(f"Mi ID obtenido: {self.mi_id}")
+                print(f"Mi sender_id obtenido: {self.mi_id}")
                 return mi_id
             else:
-                print("No se encontró el ID en la respuesta de la cuenta.")
+                print("No se encontró el sender_id en la respuesta de la cuenta.")
                 self.mi_id = None
                 return None
         else:
