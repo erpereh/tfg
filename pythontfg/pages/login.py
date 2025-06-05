@@ -17,7 +17,7 @@ def login_default_icons() -> rx.Component:
         rx.vstack(
             rx.center(
                 rx.image(
-                    src="/preicono.png",
+                    src="/chatly_cuadrado.jpg",
                     width="2.5em",
                     height="auto",
                     border_radius="25%",
@@ -43,7 +43,7 @@ def login_default_icons() -> rx.Component:
                 ),
                 rx.input(
                     rx.input.slot(rx.icon("user")),
-                    placeholder="juliodavid@gmail.com",
+                    placeholder="juliodavidtfg@gmail.com",
                     type="email",
                     size="3",
                     width="100%",
@@ -55,13 +55,14 @@ def login_default_icons() -> rx.Component:
             rx.vstack(
                 rx.hstack(
                     rx.text(
-                        "Password",
+                        "Contraseña",
                         size="3",
                         weight="medium",
                     ),
                     rx.link(
-                        "Forgot password?",
+                        "¿Olvidaste tu contraseña?",
                         href="#",
+                        on_click=Usuario.reset_password,
                         size="3",
                     ),
                     justify="between",
@@ -69,7 +70,7 @@ def login_default_icons() -> rx.Component:
                 ),
                 rx.input(
                     rx.input.slot(rx.icon("lock")),
-                    placeholder="Enter your password",
+                    placeholder="Introduce tu contraseña",
                     type="password",
                     size="3",
                     width="100%",
@@ -79,7 +80,7 @@ def login_default_icons() -> rx.Component:
                 width="100%",
             ),
             rx.button(
-                "Sign in",
+                "Iniciar sesión",
                 size="3",
                 width="100%",
                 # Comentar, solo para desarrollar
