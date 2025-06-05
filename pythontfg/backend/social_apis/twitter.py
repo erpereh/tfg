@@ -31,7 +31,8 @@ async def recargar_twitter(usr: str, mail_usr: str, contrasena: str, usuario_con
             mensaje=texto,
             fecha_hora=fecha.isoformat(),
             hora_formato_chat=fecha.strftime("%H:%M"),
-            enviado=enviado
+            enviado=enviado,
+            modo_chat=True
         )
 
         nuevos_mensajes.append(mensaje)

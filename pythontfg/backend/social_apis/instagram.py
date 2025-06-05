@@ -49,7 +49,8 @@ def recargar_instagram(usr: str, contrasena: str, usuario_contacto: str, cantida
             mensaje=texto,
             fecha_hora=fecha.isoformat(),
             hora_formato_chat=fecha.strftime("%H:%M"),
-            enviado=(msg["user_id"] == mi_id)
+            enviado=(msg["user_id"] == mi_id),
+            modo_chat=True
         )
 
         nuevos_mensajes.append(mensaje)
