@@ -17,7 +17,7 @@ def registrarse_default_icons() -> rx.Component:
         rx.vstack(
             rx.center(
                 rx.image(
-                    src="/preicono.png",
+                    src="/chatly_cuadrado.jpg",
                     width="2.5em",
                     height="auto",
                     border_radius="25%",
@@ -72,7 +72,7 @@ def registrarse_default_icons() -> rx.Component:
             rx.vstack(
                 rx.hstack(
                     rx.text(
-                        "Password",
+                        "Contraseña",
                         size="3",
                         weight="medium",
                     ),
@@ -80,7 +80,7 @@ def registrarse_default_icons() -> rx.Component:
                     width="100%",
                 ),
                 rx.input(
-                    placeholder="Enter your password",
+                    placeholder="Introduce tu contraseña",
                     type="password",
                     size="3",
                     width="100%",
@@ -90,7 +90,7 @@ def registrarse_default_icons() -> rx.Component:
                 width="100%",
             ),
             rx.button(
-                "Sign Up",
+                "Registrarse",
                 size="3",
                 width="100%",
                 on_click=Usuario.validar_registro,

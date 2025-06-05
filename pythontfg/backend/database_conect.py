@@ -282,6 +282,8 @@ class Usuario(rx.State):
         return ChatState.cargar_usuario(datos)
     
 
+    def reset_password(self):
+        self.error="Pongase en contacto con davidjuliotfg@gmail.com"
 
     
     #****************************************************************************************
