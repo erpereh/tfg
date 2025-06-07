@@ -16,11 +16,6 @@ from reflex.components.radix.themes.base import LiteralAccentColor
 
 @template(route="/inicio", title="Inicio")
 def inicio() -> rx.Component:
-    """The overview page.
-    Returns:
-        The UI for the overview page.
-
-    """
     num_contactos = Usuario.contactos.length()
     return rx.vstack(
         rx.flex(
