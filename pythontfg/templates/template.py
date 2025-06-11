@@ -35,15 +35,23 @@ def menu_item_link(text, href):
 
 
 class ThemeState(rx.State):
-    """The state for the theme of the app."""
-
     accent_color: str = "crimson"
-
     gray_color: str = "gray"
-
-    radius: str = "large"
-
+    radius: str = "large"  # Valor real (interno)
     scaling: str = "100%"
+
+    radius_visual: str = "grande"  # Valor visible (español)
+
+    def set_radius(self, valor_espanol):
+        mapa_radios = {
+            "no": "none",
+            "pequeño": "small",
+            "mediano": "medium",
+            "grande": "large",
+            "completo": "full"
+        }
+        self.radius = mapa_radios.get(valor_espanol, "large")
+        self.radius_visual = valor_espanol  # Actualiza el valor visual también
 
 
 def template(

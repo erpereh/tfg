@@ -331,6 +331,7 @@ def diagrama_circular() -> rx.Component:
                 inner_radius="70",
                 outer_radius="100",
                 label=True,
+                stroke="none",
             ),
             rx.recharts.legend(),
             height=300,

@@ -9,7 +9,7 @@ def perfil() -> rx.Component:
         # Encabezado superior
         rx.hstack(
             rx.icon("square-user-round"),
-            rx.heading("Información personal", size="5"),
+            rx.heading("Información personal", size="8"),
             align="center",
         ),
         rx.text("Visualiza los datos vinculados a tu cuenta.", size="3"),

@@ -135,8 +135,8 @@ class Usuario(rx.State):
     def validar_login(self):
         #************************************
         #comentar, solo para desarrollo
-        self.set_email("1@gmail.com")
-        self.set_password("111111")
+        #self.set_email("1@gmail.com")
+        #self.set_password("111111")
         #************************************
         
         # Consultamos la tabla 'borrame' buscando coincidencia exacta de email y pass
@@ -248,14 +248,16 @@ class Usuario(rx.State):
 
         for contacto_data in res.data:
             contacto = Contacto(
-                nombre=contacto_data.get("nombre", ""),
-                email=contacto_data.get("email", ""),
-                telefono=contacto_data.get("telefono", ""),
-                instagram=contacto_data.get("instagram", ""),
-                discord=contacto_data.get("discord", ""),
-                twitter=contacto_data.get("twitter", ""),
-                linkedin=contacto_data.get("linkedin", "")
+                nombre=contacto_data.get("nombre") or "",
+                email=contacto_data.get("email") or "",
+                telefono=contacto_data.get("telefono") or "",
+                instagram=contacto_data.get("instagram") or "",
+                discord=contacto_data.get("discord") or "",
+                twitter=contacto_data.get("twitter") or "",
+                linkedin=contacto_data.get("linkedin") or ""
             )
+
+            
             self.contactos.append(contacto)
             
         if self.contactos and self.selected_contact is None:
@@ -664,8 +666,8 @@ class Usuario(rx.State):
             
         self.datos_formato_grafico_circular = [
             {"name": "Instagram", "value": self.stat_cont_instagram, "fill": "#E1306C"},  # rosa Instagram
-            {"name": "Discord", "value": self.stat_cont_discord, "fill": "#3b5998"},      # azul oscuro Discord
-            {"name": "Twitter", "value": self.stat_cont_twitter, "fill": "#1DA1F2"},      # azul Twitter
+            {"name": "Discord", "value": self.stat_cont_discord, "fill": "#843797"},      # azul oscuro Discord
+            {"name": "Twitter", "value": self.stat_cont_twitter, "fill": "#A9DDFF"},      # azul Twitter
             {"name": "Linkedin", "value": self.stat_cont_linkedin, "fill": "#0077B5"},    # azul LinkedIn
         ]
 

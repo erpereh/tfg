@@ -1,6 +1,6 @@
 
 """ APIs IA """
-KEY_OPEN_ROUTER = "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"
+KEY_OPEN_ROUTER = "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"
 
 """ BASE_URL IA """
 BASE_URL_OPEN_ROUTER="https://openrouter.ai/api/v1"

@@ -8,19 +8,19 @@ def radius_picker() -> rx.Component:
         rx.vstack(
             rx.hstack(
                 rx.icon("radius"),
-                rx.heading("Radius", size="6"),
+                rx.heading("Radio", size="6"),
                 align="center",
             ),
             rx.select(
                 [
-                    "none",
-                    "small",
-                    "medium",
-                    "large",
-                    "full",
+                    "no",
+                    "pequeño",
+                    "mediano",
+                    "grande",
+                    "completo",
                 ],
                 size="3",
-                value=ThemeState.radius,
+                value=ThemeState.radius_visual,  # <-- Usa valor visual en español
                 on_change=ThemeState.set_radius,
             ),
             width="100%",

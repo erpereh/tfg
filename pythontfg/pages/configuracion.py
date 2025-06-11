@@ -17,12 +17,12 @@ def configuracion() -> rx.Component:
 
     """
     return rx.vstack(
-        rx.heading("Configuración", size="5"),
+        rx.heading("Configuración", size="8"),
         # Primary color picker
         rx.vstack(
             rx.hstack(
                 rx.icon("palette", color=rx.color("accent", 10)),
-                rx.heading("Primary color", size="6"),
+                rx.heading("Color principal", size="6"),
                 align="center",
             ),
             primary_color_picker(),
@@ -33,7 +33,7 @@ def configuracion() -> rx.Component:
         rx.vstack(
             rx.hstack(
                 rx.icon("blend", color=rx.color("gray", 11)),
-                rx.heading("Secondary color", size="6"),
+                rx.heading("Color secundario", size="6"),
                 align="center",
             ),
             secondary_color_picker(),
