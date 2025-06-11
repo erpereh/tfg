@@ -1,5 +1,3 @@
-"""Styles for the app."""
-
 import reflex as rx
 
 border_radius = "var(--radius-2)"

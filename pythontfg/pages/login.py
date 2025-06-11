@@ -6,13 +6,12 @@ from pythontfg.backend.database_conect import Usuario
 @rx.page(route="/", title="Login")
 def login_page() -> rx.Component:
     return rx.center(
-        login_default_icons(),
+        login_ui(),
         height="100vh",
         padding="2em",
     )
 
-
-def login_default_icons() -> rx.Component:
+def login_ui() -> rx.Component:
     return rx.card(
         rx.vstack(
             rx.center(

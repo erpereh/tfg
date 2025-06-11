@@ -119,7 +119,7 @@ def chat_ui():
             rx.cond(
                 ChatState.is_chat,
                 rx.button("Enviar", on_click=ChatState.send_message, bg="#8265d4", color="white"),
-                rx.button("Envio", on_click=ChatState.write_with_ia, bg="#8265d4", color="white", disabled=ChatState.is_generating_ia),
+                rx.button("Enviar", on_click=ChatState.write_with_ia, bg="#8265d4", color="white", disabled=ChatState.is_generating_ia),
             ),
             width="100%",
         ),

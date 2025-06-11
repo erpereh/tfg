@@ -1,6 +1,5 @@
 from pythontfg.backend.backend_chat import ChatState
 from pythontfg.backend.database_conect import Usuario
-from pythontfg.backend.usuario_ligero import UsuarioLigero
 from ..templates import template
 from pythontfg.components.chat_tools import chatbar
 from pythontfg.components.chat_tools import area_chat
