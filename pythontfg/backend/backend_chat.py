@@ -420,12 +420,19 @@ class ChatState(rx.State):
         api_messages = [system_prompt] + history
 
         # 5) Llamada a la API de OpenAI
-        response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
-            messages=api_messages,
-        )
-        ia_text = response.choices[0].message.content
-        print(f"Modo chat (simulación usuario): {ia_text}")
+        try:
+            response = client.chat.completions.create(
+                model="deepseek/deepseek-chat-v3-0324:free",
+                messages=api_messages,
+            )
+            ia_text = response.choices[0].message.content
+            print(f"Modo chat (simulación usuario): {ia_text}")
+        except Exception as e:
+            # En caso de error, volcamos el último ia_text (o un valor por defecto) y salimos
+            async with self:
+                self.is_generating_ia = False
+            yield
+            return  # detenemos la función para no seguir procesando
 
         # 6) Volcar directamente la respuesta en el input del usuario
         async with self:
@@ -484,12 +491,18 @@ class ChatState(rx.State):
         api_messages = [system_prompt] + history
 
         # 5) Llamada a la API de OpenAI
-        response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
-            messages=api_messages,
-        )
-        ia_text = response.choices[0].message.content
-        print(f"Modo chatbot: {ia_text}")
+        try:
+            response = client.chat.completions.create(
+                model="deepseek/deepseek-chat-v3-0324:free",
+                messages=api_messages,
+            )
+            ia_text = response.choices[0].message.content
+            print(f"Modo chatbot: {ia_text}")
+        except Exception as e:
+            async with self:
+                self.is_generating_ia = False
+            yield
+            return
 
         # 6) Guardar y persistir mensajes
         async with self:
