@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 @dataclass
 class UsuarioLigero:
+    nombre: str
     instagram_usr: str
     instagram_pass: str
     discord_usr: str

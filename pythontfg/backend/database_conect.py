@@ -271,6 +271,7 @@ class Usuario(rx.State):
     def enviar_datos_chat(self):
         from pythontfg.backend.backend_chat import ChatState
         datos = {
+            "nombre": self.nombre,
             "instagram_usr": self.instagram_usr,
             "instagram_pass": self.instagram_pass,
             "discord_usr": self.discord_usr,

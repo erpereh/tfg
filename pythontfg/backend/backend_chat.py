@@ -6,6 +6,7 @@ import reflex as rx
 from pythontfg.backend.social_apis.calendar_api import crear_evento_google_calendar
 from pythontfg.backend.mensaje import Mensaje
 from pythontfg.backend.database_conect import Contacto
+from pythontfg.backend.database_conect import Usuario
 from pythontfg.backend.usuario_ligero import UsuarioLigero  # si lo metes en archivo aparte
 from pythontfg.backend.database_conect import supabase
 from pythontfg.backend.config import KEY_OPEN_ROUTER, BASE_URL_OPEN_ROUTER, MODEL
@@ -101,9 +102,10 @@ class ChatState(rx.State):
 
             print(f"{len(self.mensajes)} mensajes cargados")
 
-            ult_mensaje_recibido = next((m for m in reversed(self.mensajes) if not m.enviado), None)
-            if ult_mensaje_recibido:
-                return type(self).search_event(ult_mensaje_recibido)
+            if self.is_chat:
+                ult_mensaje_recibido = next((m for m in reversed(self.mensajes_filtrados_list) if not m.enviado), None)
+                if ult_mensaje_recibido:
+                    return type(self).search_event(ult_mensaje_recibido)
         else:
             print("No se encontraron mensajes.")
 
@@ -383,137 +385,156 @@ class ChatState(rx.State):
 
     
     #****************************************************************************************
-    #******************* TODO ESTO ES PARA GENERAR MENSAJE CON IA ***************************
+    #************** TODO ESTO ES PARA GENERAR MENSAJE CON IA EN MODO NORMAL *****************
     #****************************************************************************************
-    
-
-    
     @rx.event(background=True)
     async def write_with_ia(self):
         async with self:
             self.is_generating_ia = True
         yield  # informa al cliente que hay un cambio de estado
 
-        # Selecciona el contexto según el modo
-        if self.is_chat:
-            # Solo mensajes filtrados (red social seleccionada)
-            context_msgs = self.mensajes_filtrados()
-            # Prompt específico para chat/red social
-            system_prompt = {
-                "role": "system",
-                "content": (
-                    "Eres la persona original con la que se está hablando en una red social. "
-                    "Responde de forma natural, breve y amigable, como si fueras esa persona. "
-                    "No hagas referencia a ningún chatbot ni a otros contextos."
-                ),
-            }
-            # El historial no necesita prefijos especiales
-            history = [
-                {
-                    "role": "user" if m.enviado else "assistant",
-                    "content": m.mensaje,
-                }
-                for m in context_msgs
-            ]
-        else:
-            # Todos los mensajes (chatbot y redes sociales)
-            context_msgs = self.mensajes
-            # Prompt para que la IA entienda el contexto
-            system_prompt = {
-                "role": "system",
-                "content": (
-                    "Eres un chatbot útil. "
-                    "Los mensajes que empiezan por [RED_SOCIAL] son conversaciones reales de redes sociales, "
-                    "los que empiezan por [CHATBOT] son mensajes del chatbot. "
-                    "Responde como chatbot, pero puedes usar el contexto de las redes sociales para ayudar."
-                    "No incluyas [CHATBOT o RED_SOCIAL] en tus respuestas, "
-                ),
-            }
-            # El historial lleva prefijos para distinguir el origen
-            history = [
-                {
-                    "role": "user" if m.enviado else "assistant",
-                    "content": (
-                        f"[{'RED_SOCIAL' if m.modo_chat else 'CHATBOT'}] {m.mensaje}"
-                    ),
-                }
-                for m in context_msgs
-            ]
+        # 1) Selección y recorte del historial (últimos 3 mensajes)
+        MAX_HISTORY = 3
+        recent_msgs = self.mensajes_filtrados()[-MAX_HISTORY:]
 
+        # 2) Construcción de 'history' con roles
+        history = []
+        for m in recent_msgs:
+            role = "user" if m.enviado else "assistant"
+            history.append({"role": role, "content": m.mensaje})
+            
+        print (f"Historial para IA: {history}")
+
+        # 3) Prompt del sistema (simulación de usuario)
+        system_prompt = {
+            "role": "system",
+            "content": (
+                "Imita al usuario real en esta conversación de red social. "
+                "Habla de forma natural, breve y con su estilo personal "
+                "(por ejemplo, emojis, giros coloquiales). "
+                "No menciones que eres una IA ni referencias a chats anteriores fuera de este contexto."
+            ),
+        }
+
+        # 4) Ensamblaje de la lista de mensajes para la API
         api_messages = [system_prompt] + history
 
+        # 5) Llamada a la API de OpenAI
         response = client.chat.completions.create(
-            model=MODEL,
+            model="deepseek/deepseek-chat-v3-0324:free",
             messages=api_messages,
         )
-
         ia_text = response.choices[0].message.content
+        print(f"Modo chat (simulación usuario): {ia_text}")
 
-        print(f"Modo chat: {self.is_chat}, respuesta IA: {ia_text}")
-
+        # 6) Volcar directamente la respuesta en el input del usuario
         async with self:
-            if self.is_chat:
-                self.user_input = ia_text
-            else:
-                now_iso = datetime.now().isoformat()
-                hora_formato = datetime.fromisoformat(now_iso).strftime("%H:%M")
-                # Mensaje del usuario
-                mensaje_usuario = Mensaje(
-                    mensaje=self.user_input,
-                    fecha_hora=now_iso,
-                    hora_formato_chat=hora_formato,
-                    enviado=True,
-                    modo_chat=False
-                )
-                # Mensaje de la IA
-                respuesta_ia = Mensaje(
-                    mensaje=ia_text,
-                    fecha_hora=now_iso,
-                    hora_formato_chat=hora_formato,
-                    enviado=False,
-                    modo_chat=False
-                )
-                # Añadir a la lista local
-                self.mensajes.append(mensaje_usuario)
-                self.mensajes.append(respuesta_ia)
-                self.mensajes_filtrados_list = self.mensajes_filtrados()
-                self.user_input = ""
-
-                # Guardar ambos mensajes en Supabase
-                supabase.from_("mensajes").insert([
-                    {
-                        "user_email": self.user.email,
-                        "nombre_contacto": self.selected_contact_chat.nombre if self.selected_contact_chat else "",
-                        "mensaje": mensaje_usuario.mensaje,
-                        "fecha_hora": mensaje_usuario.fecha_hora,
-                        "enviado": True,
-                        "red_social": self.selected_red_social,
-                        "modo_chat": False
-                    },
-                    {
-                        "user_email": self.user.email,
-                        "nombre_contacto": self.selected_contact_chat.nombre if self.selected_contact_chat else "",
-                        "mensaje": respuesta_ia.mensaje,
-                        "fecha_hora": respuesta_ia.fecha_hora,
-                        "enviado": False,
-                        "red_social": self.selected_red_social,
-                        "modo_chat": False
-                    }
-                ]).execute()
-
+            self.user_input = ia_text
             self.is_generating_ia = False
-
         yield  # informa al cliente que hay un cambio de estado
 
 
-        """
-        EN CASO DE QUIERER GUARDAR EN LA BASE DE DATOS
-        now = datetime.now().isoformat()
+    #****************************************************************************************
+    #************* TODO ESTO ES PARA GENERAR MENSAJE CON IA EN MODO CHATBOT ***************** 
+    #****************************************************************************************
+    @rx.event(background=True)
+    async def send_message_chatbot(self):
         async with self:
-            mensaje_ia = Mensaje(mensaje=ia_text, fecha_hora=now, enviado=False)
-            self.messages.append(mensaje_ia)
-            self.user_input = ia_text
+            self.is_generating_ia = True
+        yield  # informa al cliente que hay un cambio de estado
+
+        # 1) Selección y recorte del historial (últimos 10 mensajes)
+        MAX_HISTORY = 5
+        recent_msgs = (self.mensajes)[-MAX_HISTORY:]
+
+        # 2) Construcción de 'history' con roles y etiquetas en el contenido
+        history = []
+        for m in recent_msgs:
+            if m.enviado:
+                # Tú escribiste esto (da igual si era al contacto o a la IA)
+                role = "user"
+                content = f"[{self.user.nombre}] {m.mensaje}"
+            else:
+                # Mensaje recibido (contacto o chatbot)
+                role = "assistant"
+                if m.modo_chat:
+                    # Vino del contacto
+                    content = f"[{self.selected_contact_chat.nombre}] {m.mensaje}"
+                else:
+                    # Vino de tu propio chatbot en iteraciones previas
+                    content = f"[CHATBOT] {m.mensaje}"
+            history.append({"role": role, "content": content})
+
+        # 3) Prompt del sistema (chatbot empático)
+        system_prompt = {
+            "role": "system",
+            "content": (
+                f"Eres el asistente personal de {self.user.nombre}. "
+                "Tu tarea es leer la conversación y ofrecer consejos prácticos de forma empática, "
+                "como lo haría un amigo cercano en tercera persona. "
+                f"Cuando respondas, comienza dirigiéndote a {self.user.nombre} por su nombre y da tu consejo con calidez. "
+                f"Ten en cuenta que este contexto es un chat entre {self.user.nombre} y sus contactos, "
+                "podrás saber que mensajes son del usuario y cuáles de sus contactos por el formato: "
+                f"[NombreContacto] mensaje del contacto o [{self.user.nombre}] mensaje del usuario. "
+                "No menciones que eres una IA ni hagas referencia a un chat o plataforma."
+            ),
+        }
+
+        # 4) Ensamblaje de la lista de mensajes para la API
+        api_messages = [system_prompt] + history
+
+        # 5) Llamada a la API de OpenAI
+        response = client.chat.completions.create(
+            model="deepseek/deepseek-chat-v3-0324:free",
+            messages=api_messages,
+        )
+        ia_text = response.choices[0].message.content
+        print(f"Modo chatbot: {ia_text}")
+
+        # 6) Guardar y persistir mensajes
+        async with self:
+            now_iso = datetime.now().isoformat()
+            hora_formato = datetime.fromisoformat(now_iso).strftime("%H:%M")
+
+            mensaje_usuario = Mensaje(
+                mensaje=self.user_input,
+                fecha_hora=now_iso,
+                hora_formato_chat=hora_formato,
+                enviado=True,
+                modo_chat=False
+            )
+            respuesta_ia = Mensaje(
+                mensaje=ia_text,
+                fecha_hora=now_iso,
+                hora_formato_chat=hora_formato,
+                enviado=False,
+                modo_chat=False
+            )
+
+            self.mensajes.extend([mensaje_usuario, respuesta_ia])
+            self.mensajes_filtrados_list = self.mensajes_filtrados()
+            self.user_input = ""
+
+            supabase.from_("mensajes").insert([
+                {
+                    "user_email": self.user.email,
+                    "nombre_contacto": self.selected_contact_chat.nombre if self.selected_contact_chat else "",
+                    "mensaje": mensaje_usuario.mensaje,
+                    "fecha_hora": mensaje_usuario.fecha_hora,
+                    "enviado": True,
+                    "red_social": self.selected_red_social,
+                    "modo_chat": False
+                },
+                {
+                    "user_email": self.user.email,
+                    "nombre_contacto": self.selected_contact_chat.nombre if self.selected_contact_chat else "",
+                    "mensaje": respuesta_ia.mensaje,
+                    "fecha_hora": respuesta_ia.fecha_hora,
+                    "enviado": False,
+                    "red_social": self.selected_red_social,
+                    "modo_chat": False
+                }
+            ]).execute()
+
             self.is_generating_ia = False
-        yield  # <- para que Reflex actualice la UI
-    
-        """
+        yield  # informa al cliente que hay un cambio de estado
